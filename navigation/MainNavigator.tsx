@@ -1,20 +1,24 @@
-import React from 'react';
+import { RootState } from '@/store';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import React, { useEffect } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { AppDispatch } from '@/store';
+import { clearError } from '@/store/slices/authSlice';
 
-import GroupsScreen from '@/screens/groups/GroupsScreen';
-import ExpensesScreen from '@/screens/expenses/ExpensesScreen';
 import BalancesScreen from '@/screens/balances/BalancesScreen';
+import ExpensesScreen from '@/screens/expenses/ExpensesScreen';
+import GroupsScreen from '@/screens/groups/GroupsScreen';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
+import { typography } from '@/constants/theme';
 
-import CreateGroupScreen from '@/screens/groups/CreateGroupScreen';
-import GroupDetailsScreen from '@/screens/groups/GroupDetailsScreen';
+import SettlementScreen from '@/screens/balances/SettlementScreen';
 import AddExpenseScreen from '@/screens/expenses/AddExpenseScreen';
 import ExpenseDetailsScreen from '@/screens/expenses/ExpenseDetailsScreen';
-import SettlementScreen from '@/screens/balances/SettlementScreen';
+import CreateGroupScreen from '@/screens/groups/CreateGroupScreen';
+import GroupDetailsScreen from '@/screens/groups/GroupDetailsScreen';
 import NotificationsScreen from '@/screens/notifications/NotificationsScreen';
 import SubscriptionScreen from '@/screens/profile/SubscriptionScreen';
 
@@ -31,7 +35,12 @@ export type MainStackParamList = {
   GroupDetails: { groupId: string };
   AddExpense: { groupId: string };
   ExpenseDetails: { expenseId: string };
-  Settlement: { fromUserId: string; toUserId: string; amount: number; groupId: string };
+  Settlement: {
+    fromUserId: string;
+    toUserId: string;
+    amount: number;
+    groupId: string;
+  };
   Notifications: undefined;
   Subscription: undefined;
 };
@@ -40,7 +49,15 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createStackNavigator<MainStackParamList>();
 
 const MainTabs: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { colors } = useSelector((state: RootState) => state.theme);
+
+  // Clear errors when main tabs are focused
+  useFocusEffect(
+    React.useCallback(() => {
+      dispatch(clearError());
+    }, [dispatch])
+  );
 
   return (
     <Tab.Navigator
@@ -56,7 +73,9 @@ const MainTabs: React.FC = () => {
               iconName = focused ? 'receipt' : 'receipt';
               break;
             case 'BalancesTab':
-              iconName = focused ? 'account-balance-wallet' : 'account-balance-wallet';
+              iconName = focused
+                ? 'account-balance-wallet'
+                : 'account-balance-wallet';
               break;
             case 'ProfileTab':
               iconName = focused ? 'person' : 'person';
@@ -79,22 +98,22 @@ const MainTabs: React.FC = () => {
       })}
     >
       <Tab.Screen
-        name="GroupsTab"
+        name='GroupsTab'
         component={GroupsScreen}
         options={{ title: 'Groups' }}
       />
       <Tab.Screen
-        name="ExpensesTab"
+        name='ExpensesTab'
         component={ExpensesScreen}
         options={{ title: 'Expenses' }}
       />
       <Tab.Screen
-        name="BalancesTab"
+        name='BalancesTab'
         component={BalancesScreen}
         options={{ title: 'Balances' }}
       />
       <Tab.Screen
-        name="ProfileTab"
+        name='ProfileTab'
         component={ProfileScreen}
         options={{ title: 'Profile' }}
       />
@@ -113,47 +132,47 @@ const MainNavigator: React.FC = () => {
         },
         headerTintColor: colors.text,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          ...typography.h3,
         },
       }}
     >
       <Stack.Screen
-        name="MainTabs"
+        name='MainTabs'
         component={MainTabs}
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="CreateGroup"
+        name='CreateGroup'
         component={CreateGroupScreen}
         options={{ title: 'Create Group' }}
       />
       <Stack.Screen
-        name="GroupDetails"
+        name='GroupDetails'
         component={GroupDetailsScreen}
         options={{ title: 'Group Details' }}
       />
       <Stack.Screen
-        name="AddExpense"
+        name='AddExpense'
         component={AddExpenseScreen}
         options={{ title: 'Add Expense' }}
       />
       <Stack.Screen
-        name="ExpenseDetails"
+        name='ExpenseDetails'
         component={ExpenseDetailsScreen}
         options={{ title: 'Expense Details' }}
       />
       <Stack.Screen
-        name="Settlement"
+        name='Settlement'
         component={SettlementScreen}
         options={{ title: 'Settle Up' }}
       />
       <Stack.Screen
-        name="Notifications"
+        name='Notifications'
         component={NotificationsScreen}
         options={{ title: 'Notifications' }}
       />
       <Stack.Screen
-        name="Subscription"
+        name='Subscription'
         component={SubscriptionScreen}
         options={{ title: 'Premium Subscription' }}
       />

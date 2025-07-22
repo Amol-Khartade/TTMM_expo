@@ -1,16 +1,18 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { List, Avatar, Switch, Button, Divider } from 'react-native-paper';
+import { List, Avatar, Switch, Button, Divider, ActivityIndicator, Snackbar } from 'react-native-paper';
+import UserDataExample from '@/components/UserDataExample';
+import UserNotesExample from '@/components/UserNotesExample';
 import { useDispatch, useSelector } from 'react-redux';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import { AppDispatch, RootState } from '@/store';
-import { signOut } from '@/store/slices/authSlice';
+import { signOut, clearError } from '@/store/slices/authSlice';
 import { toggleTheme } from '@/store/slices/themeSlice';
 import { MainStackParamList, MainTabParamList } from '@/navigation/MainNavigator';
-import { spacing } from '@/constants/theme';
+import { spacing, typography } from '@/constants/theme';
 
 type ProfileScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList, 'ProfileTab'>,
@@ -23,7 +25,7 @@ interface Props {
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user, loading, error } = useSelector((state: RootState) => state.auth);
   const { isDark, colors } = useSelector((state: RootState) => state.theme);
 
   const handleSignOut = () => {
@@ -54,14 +56,14 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         <List.Item
           title={user.displayName}
           description={user.email}
-          titleStyle={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}
+          titleStyle={{ textAlign: 'center', ...typography.h3 }}
           descriptionStyle={{ textAlign: 'center' }}
         />
         {user.isPremium && (
           <View style={[styles.premiumBadge, { backgroundColor: colors.primary }]}>
             <List.Item
               title="Premium Member"
-              titleStyle={{ color: 'white', textAlign: 'center', fontSize: 12 }}
+              titleStyle={{ color: 'white', textAlign: 'center', ...typography.caption }}
             />
           </View>
         )}
@@ -101,6 +103,16 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       </List.Section>
 
       <Divider />
+      
+      {/* Display user data from Firestore */}
+      <UserDataExample />
+      
+      <Divider />
+      
+      {/* Example of using userId for validation */}
+      <UserNotesExample />
+      
+      <Divider />
 
       <View style={styles.footer}>
         <Button
@@ -109,10 +121,24 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           style={styles.signOutButton}
           buttonColor={colors.error}
           textColor={colors.error}
+          loading={loading}
+          disabled={loading}
         >
-          Sign Out
+          {loading ? 'Signing Out...' : 'Sign Out'}
         </Button>
       </View>
+
+      <Snackbar
+        visible={!!error}
+        onDismiss={() => dispatch(clearError())}
+        action={{
+          label: 'Dismiss',
+          onPress: () => dispatch(clearError()),
+        }}
+        style={{ backgroundColor: colors.error }}
+      >
+        {error}
+      </Snackbar>
     </ScrollView>
   );
 };

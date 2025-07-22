@@ -18,6 +18,9 @@ interface Props {
 const CreateGroupScreen: React.FC<Props> = ({ navigation }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
+
+  console.warn("🚀 ~ user:", user);
+
   const { colors } = useSelector((state: RootState) => state.theme);
 
   const [groupName, setGroupName] = useState('');

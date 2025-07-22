@@ -1,4 +1,4 @@
-import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
+import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 
 export const lightTheme = {
   ...MD3LightTheme,
@@ -32,6 +32,7 @@ export const spacing = {
   md: 16,
   lg: 24,
   xl: 32,
+  xxl: 64,
 };
 
 export const typography = {
@@ -42,3 +43,18 @@ export const typography = {
   body2: { fontSize: 14, fontWeight: 'normal' as const },
   caption: { fontSize: 12, fontWeight: 'normal' as const },
 };
+
+export const borderRadius = {
+  sm: 4,
+  md: 8,
+  lg: 16,
+  xl: 32,
+};
+
+export const elevation = {
+  sm: 2,
+  md: 4,
+  lg: 8,
+  xl: 16,
+};
+

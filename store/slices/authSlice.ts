@@ -11,26 +11,42 @@ const initialState: AuthState = {
 
 export const signInWithEmail = createAsyncThunk(
   'auth/signInWithEmail',
-  async ({ email, password }: { email: string; password: string }) => {
-    return await authService.signInWithEmail(email, password);
+  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+    try {
+      return await authService.signInWithEmail(email, password);
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Sign in failed');
+    }
   }
 );
 
 export const signUpWithEmail = createAsyncThunk(
   'auth/signUpWithEmail',
-  async ({ email, password, displayName }: { email: string; password: string; displayName: string }) => {
-    return await authService.signUpWithEmail(email, password, displayName);
+  async ({ email, password, displayName }: { email: string; password: string; displayName: string }, { rejectWithValue }) => {
+    try {
+      return await authService.signUpWithEmail(email, password, displayName);
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Sign up failed');
+    }
   }
 );
 
-export const signOut = createAsyncThunk('auth/signOut', async () => {
-  return await authService.signOut();
+export const signOut = createAsyncThunk('auth/signOut', async (_, { rejectWithValue }) => {
+  try {
+    return await authService.signOut();
+  } catch (error) {
+    return rejectWithValue(error instanceof Error ? error.message : 'Sign out failed');
+  }
 });
 
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async (userData: Partial<User>) => {
-    return await authService.updateProfile(userData);
+  async (userData: Partial<User>, { rejectWithValue }) => {
+    try {
+      return await authService.updateProfile(userData);
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Profile update failed');
+    }
   }
 );
 
@@ -59,7 +75,7 @@ const authSlice = createSlice({
       })
       .addCase(signInWithEmail.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Sign in failed';
+        state.error = action.payload as string || action.error.message || 'Sign in failed';
       })
       .addCase(signUpWithEmail.pending, (state) => {
         state.loading = true;
@@ -72,7 +88,11 @@ const authSlice = createSlice({
       })
       .addCase(signUpWithEmail.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Sign up failed';
+        state.error = action.payload as string || action.error.message || 'Sign up failed';
+      })
+      .addCase(signOut.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
       .addCase(signOut.fulfilled, (state) => {
         state.user = null;
@@ -80,10 +100,23 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = null;
       })
+      .addCase(signOut.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || action.error.message || 'Sign out failed';
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
         if (state.user) {
           state.user = { ...state.user, ...action.payload };
         }
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || action.error.message || 'Profile update failed';
       });
   },
 });

@@ -3,7 +3,8 @@
     "allow": [
       "WebFetch(domain:docs.expo.dev)",
       "Bash(rm:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run lint)"
     ],
     "deny": []
   }

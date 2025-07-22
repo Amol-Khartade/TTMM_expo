@@ -6,6 +6,8 @@ export interface User {
   isPremium: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // For demonstration only - in a real app, never store passwords in Firestore
+  password?: string;
 }
 
 export interface Group {

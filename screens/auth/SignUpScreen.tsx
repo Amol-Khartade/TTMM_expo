@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, Text, Card } from 'react-native-paper';
-import { useDispatch, useSelector } from 'react-redux';
+import { getFirestorePermissionMessage } from '@/utils/checkFirestorePermission';
 import { StackNavigationProp } from '@react-navigation/stack';
+import React, { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Card, Snackbar, Text, TextInput } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { AppDispatch, RootState } from '@/store';
-import { signUpWithEmail, clearError } from '@/store/slices/authSlice';
-import { AuthStackParamList } from '@/navigation/AuthNavigator';
 import { spacing } from '@/constants/theme';
+import { AuthStackParamList } from '@/navigation/AuthNavigator';
+import { AppDispatch, RootState } from '@/store';
+import { clearError, signUpWithEmail } from '@/store/slices/authSlice';
+import { hp } from '@/utils/dimensions';
 
-type SignUpScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'SignUp'>;
+type SignUpScreenNavigationProp = StackNavigationProp<
+  AuthStackParamList,
+  'SignUp'
+>;
 
 interface Props {
   navigation: SignUpScreenNavigationProp;
@@ -26,9 +31,15 @@ const SignUpScreen: React.FC<Props> = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
 
   const handleSignUp = async () => {
-    if (!displayName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (
+      !displayName.trim() ||
+      !email.trim() ||
+      !password.trim() ||
+      !confirmPassword.trim()
+    ) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -44,13 +55,28 @@ const SignUpScreen: React.FC<Props> = ({ navigation }) => {
     }
 
     try {
-      await dispatch(signUpWithEmail({
-        email: email.trim(),
-        password,
-        displayName: displayName.trim(),
-      })).unwrap();
-    } catch (error) {
+      const result = await dispatch(
+        signUpWithEmail({
+          email: email.trim(),
+          password,
+          displayName: displayName.trim(),
+        })
+      ).unwrap();
+
+      // Show success message with user data saved to Firestore
+      Alert.alert(
+        'Account Created',
+        `Your account has been created successfully! User data has been saved to Firestore.`,
+        [{ text: 'OK' }]
+      );
+    } catch (error: any) {
       console.error('Sign up error:', error);
+
+      // Check if it's a Firestore permission error
+      if (error && error.includes && error.includes('permission-denied')) {
+        // Show Firestore permission error message
+        setPermissionError(getFirestorePermissionMessage());
+      }
     }
   };
 
@@ -62,14 +88,19 @@ const SignUpScreen: React.FC<Props> = ({ navigation }) => {
   }, [error, dispatch]);
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
         <Card style={styles.card}>
           <Card.Content>
-            <Text variant="headlineMedium" style={[styles.title, { color: colors.primary }]}>
+            <Text
+              variant="headlineMedium"
+              style={[styles.title, { color: colors.primary }]}>
               Create Account
             </Text>
-            <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.text }]}>
+            <Text
+              variant="bodyMedium"
+              style={[styles.subtitle, { color: colors.text }]}>
               Join us to start tracking your expenses
             </Text>
 
@@ -131,8 +162,7 @@ const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               onPress={handleSignUp}
               loading={loading}
               disabled={loading}
-              style={styles.button}
-            >
+              style={styles.button}>
               Create Account
             </Button>
           </Card.Content>
@@ -143,12 +173,24 @@ const SignUpScreen: React.FC<Props> = ({ navigation }) => {
           <Button
             mode="text"
             onPress={() => navigation.navigate('Login')}
-            compact
-          >
+            compact>
             Sign In
           </Button>
         </View>
       </View>
+
+      {/* Firestore permission error message */}
+      <Snackbar
+        visible={!!permissionError}
+        onDismiss={() => setPermissionError(null)}
+        action={{
+          label: 'Dismiss',
+          onPress: () => setPermissionError(null),
+        }}
+        duration={8000}
+        style={{ backgroundColor: colors.error }}>
+        {permissionError}
+      </Snackbar>
     </ScrollView>
   );
 };
@@ -161,6 +203,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.md,
     justifyContent: 'center',
+    marginVertical: hp('20%'),
   },
   card: {
     padding: spacing.md,

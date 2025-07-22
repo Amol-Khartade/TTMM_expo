@@ -13,6 +13,7 @@ import { notificationService } from '@/services/notificationService';
 
 import AppNavigator from '@/navigation/AppNavigator';
 import LoadingScreen from '@/screens/LoadingScreen';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const AppContent: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -54,7 +55,9 @@ const AppContent: React.FC = () => {
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor={theme.colors.surface}
       />
-      <AppNavigator />
+      <ErrorBoundary>
+        <AppNavigator />
+      </ErrorBoundary>
     </PaperProvider>
   );
 };

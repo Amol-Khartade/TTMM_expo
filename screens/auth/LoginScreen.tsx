@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, Text, Card } from 'react-native-paper';
-import { useDispatch, useSelector } from 'react-redux';
+import { getFirestorePermissionMessage } from '@/utils/checkFirestorePermission';
 import { StackNavigationProp } from '@react-navigation/stack';
+import React, { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Card, Snackbar, Text, TextInput } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { AppDispatch, RootState } from '@/store';
-import { signInWithEmail, clearError } from '@/store/slices/authSlice';
-import { AuthStackParamList } from '@/navigation/AuthNavigator';
 import { spacing } from '@/constants/theme';
+import { AuthStackParamList } from '@/navigation/AuthNavigator';
+import { AppDispatch, RootState } from '@/store';
+import { clearError, signInWithEmail } from '@/store/slices/authSlice';
+import { hp } from '@/utils/dimensions';
 
-type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
+type LoginScreenNavigationProp = StackNavigationProp<
+  AuthStackParamList,
+  'Login'
+>;
 
 interface Props {
   navigation: LoginScreenNavigationProp;
@@ -23,6 +28,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -31,9 +37,24 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     }
 
     try {
-      await dispatch(signInWithEmail({ email: email.trim(), password })).unwrap();
-    } catch (error) {
+      const userData = await dispatch(
+        signInWithEmail({ email: email.trim(), password })
+      ).unwrap();
+
+      // Show success message with retrieved user data
+      Alert.alert(
+        'Login Successful',
+        `Welcome back, ${userData.displayName}! Your user data has been retrieved from Firestore.`,
+        [{ text: 'Continue' }]
+      );
+    } catch (error: any) {
       console.error('Login error:', error);
+
+      // Check if it's a Firestore permission error
+      if (error && error.includes && error.includes('permission-denied')) {
+        // Show Firestore permission error message
+        setPermissionError(getFirestorePermissionMessage());
+      }
     }
   };
 
@@ -45,14 +66,19 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   }, [error, dispatch]);
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
         <Card style={styles.card}>
           <Card.Content>
-            <Text variant="headlineMedium" style={[styles.title, { color: colors.primary }]}>
+            <Text
+              variant="headlineMedium"
+              style={[styles.title, { color: colors.primary }]}>
               Welcome Back
             </Text>
-            <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.text }]}>
+            <Text
+              variant="bodyMedium"
+              style={[styles.subtitle, { color: colors.text }]}>
               Sign in to continue managing your expenses
             </Text>
 
@@ -88,16 +114,14 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               onPress={handleLogin}
               loading={loading}
               disabled={loading}
-              style={styles.button}
-            >
+              style={styles.button}>
               Sign In
             </Button>
 
             <Button
               mode="text"
               onPress={() => navigation.navigate('ForgotPassword')}
-              style={styles.textButton}
-            >
+              style={styles.textButton}>
               Forgot Password?
             </Button>
           </Card.Content>
@@ -108,12 +132,24 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           <Button
             mode="text"
             onPress={() => navigation.navigate('SignUp')}
-            compact
-          >
+            compact>
             Sign Up
           </Button>
         </View>
       </View>
+
+      {/* Firestore permission error message */}
+      <Snackbar
+        visible={!!permissionError}
+        onDismiss={() => setPermissionError(null)}
+        action={{
+          label: 'Dismiss',
+          onPress: () => setPermissionError(null),
+        }}
+        duration={8000}
+        style={{ backgroundColor: colors.error }}>
+        {permissionError}
+      </Snackbar>
     </ScrollView>
   );
 };
@@ -124,11 +160,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: spacing.md,
+    padding: spacing.lg,
     justifyContent: 'center',
+    marginVertical: hp('25%'),
   },
   card: {
     padding: spacing.md,
+    // marginVertical: spacing.lg,
+    elevation: 4,
   },
   title: {
     textAlign: 'center',
