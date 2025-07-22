@@ -1,10 +1,77 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // WARNING: These rules are for development only!
-    // DO NOT use in production
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Allow users to read/write their own user document
+    match /users/{userId} {
+      // Allow users to read, update, and delete their own data
+      allow read, update, delete: if isOwner(userId);
+      
+      // Allow users to create their own document during signup
+      allow create: if isSignedIn() && 
+                   request.auth.uid == userId &&
+                   isValidUser();
+      
+      // Validate user data structure
+      function isValidUser() {
+        return request.resource.data.keys().hasAll(['email', 'displayName', 'createdAt']) &&
+               request.resource.data.email is string &&
+               request.resource.data.displayName is string &&
+               request.resource.data.createdAt is timestamp &&
+               request.resource.data.userId == request.auth.uid;
+      }
+    }
+    
+    // Allow listing users (optional - for group functionality)
+    match /users {
+      allow list: if isSignedIn();
+    }
+    
+    // User data collections - store additional user data
+    match /userData/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+    
+    // User preferences
+    match /userPreferences/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+    
+    // User activity
+    match /userActivity/{docId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Groups collection rules
+    match /groups/{groupId} {
+      // Allow authenticated users to create groups
+      allow create: if isSignedIn() && request.resource.data.createdBy == request.auth.uid;
+      
+      // Allow members to read group data
+      allow read: if isSignedIn() && 
+                  (resource.data.createdBy == request.auth.uid || 
+                   resource.data.members.hasAny([{userId: request.auth.uid}]));
+      
+      // Allow group creator to update and delete
+      allow update, delete: if isSignedIn() && resource.data.createdBy == request.auth.uid;
+    }
+    
+    // More restrictive rules for other collections
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false; // Deny all other access by default
     }
   }
 }

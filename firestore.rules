@@ -9,6 +9,37 @@ service cloud.firestore {
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+
+    // Check if the user is a member or the creator of the group
+function isGroupMember() {
+  return isSignedIn() && 
+         (resource.data.createdBy == request.auth.uid || 
+          resource.data.members.hasAny([{
+            userId: request.auth.uid
+          }]));
+}
+
+// Validate member data structure
+function isValidMember(member) {
+  return member is map &&
+         member.keys().hasAll(['userId', 'displayName', 'email', 'joinedAt', 'role']) &&
+         member.userId is string &&
+         member.displayName is string &&
+         member.email is string &&
+         member.joinedAt is timestamp &&
+         member.role in ['admin', 'member'];
+}
+
+// Validate member data for group creation (more lenient for invited users)
+function isValidMemberForCreation(member) {
+  return member is map &&
+         member.keys().hasAll(['userId', 'displayName', 'email', 'joinedAt', 'role']) &&
+         member.userId is string &&
+         member.displayName is string &&
+         member.email is string &&
+         member.joinedAt is timestamp &&
+         member.role in ['admin', 'member'];
+}
     
     // Allow users to read/write their own user document
     match /users/{userId} {
@@ -54,6 +85,23 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
+    
+   // Groups collection rules (temporarily simplified for debugging)
+match /groups/{groupId} {
+  // Allow any authenticated user to create groups (temporarily)
+  allow create: if isSignedIn() && 
+                  request.resource.data.createdBy == request.auth.uid;
+
+   // Allow authenticated users to read groups (temporarily)
+  allow read: if isSignedIn();
+
+  // Allow updates by authenticated users (temporarily)
+  allow update: if isSignedIn();
+                   
+  // Allow deletion by authenticated users (temporarily)
+  allow delete: if isSignedIn();
+}
+
     
     // More restrictive rules for other collections
     match /{document=**} {
