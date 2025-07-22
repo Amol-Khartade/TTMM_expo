@@ -122,6 +122,20 @@ export interface ExpensesState {
   error: string | null;
 }
 
+export interface EnhancedExpensesState extends ExpensesState {
+  currentGroupId: string | null;
+  hasMoreExpenses: boolean;
+  lastLoadedExpense: Expense | null;
+  isLoadingMore: boolean;
+  analytics: any;
+  filters: {
+    category: string | null;
+    dateFrom: Date | null;
+    dateTo: Date | null;
+    searchTerm: string | null;
+  };
+}
+
 export interface NotificationsState {
   notifications: Notification[];
   unreadCount: number;

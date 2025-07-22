@@ -102,6 +102,68 @@ match /groups/{groupId} {
   allow delete: if isSignedIn();
 }
 
+// Expenses collection rules
+match /expenses/{expenseId} {
+  // Allow authenticated users to create expenses
+  allow create: if isSignedIn() &&
+                  request.resource.data.createdBy == request.auth.uid &&
+                  request.resource.data.keys().hasAll(['groupId', 'title', 'amount', 'paidBy', 'splitDetails']) &&
+                  request.resource.data.amount is number &&
+                  request.resource.data.amount > 0 &&
+                  request.resource.data.splitDetails is list &&
+                  request.resource.data.splitDetails.size() > 0;
+
+  // Allow reading expenses if user is involved (paid or owes money)
+  allow read: if isSignedIn() &&
+                (resource.data.createdBy == request.auth.uid ||
+                 resource.data.paidBy == request.auth.uid ||
+                 resource.data.splitDetails.hasAny([{'userId': request.auth.uid}]));
+
+  // Allow updates only by the creator
+  allow update: if isSignedIn() &&
+                  resource.data.createdBy == request.auth.uid &&
+                  request.resource.data.createdBy == resource.data.createdBy;
+
+  // Allow deletion only by the creator
+  allow delete: if isSignedIn() && resource.data.createdBy == request.auth.uid;
+}
+
+// Balances collection rules
+match /balances/{balanceId} {
+  // Allow system to create and update balances
+  allow create, update: if isSignedIn();
+
+  // Allow reading balances if user owns it or is in the same group
+  allow read: if isSignedIn() &&
+                (resource.data.userId == request.auth.uid);
+
+  // Don't allow manual deletion of balances
+  allow delete: if false;
+}
+
+// Settlements collection rules
+match /settlements/{settlementId} {
+  // Allow creating settlements between users
+  allow create: if isSignedIn() &&
+                  (request.resource.data.fromUserId == request.auth.uid ||
+                   request.resource.data.toUserId == request.auth.uid);
+
+  // Allow reading settlements if user is involved
+  allow read: if isSignedIn() &&
+                (resource.data.fromUserId == request.auth.uid ||
+                 resource.data.toUserId == request.auth.uid);
+
+  // Allow updates (for completing settlements) by involved users
+  allow update: if isSignedIn() &&
+                  (resource.data.fromUserId == request.auth.uid ||
+                   resource.data.toUserId == request.auth.uid);
+
+  // Allow deletion only by creator
+  allow delete: if isSignedIn() &&
+                  (resource.data.fromUserId == request.auth.uid ||
+                   resource.data.toUserId == request.auth.uid);
+}
+
     
     // More restrictive rules for other collections
     match /{document=**} {
