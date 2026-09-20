@@ -57,9 +57,17 @@ class AuthService {
 
   async signOut(): Promise<void> {
     try {
-      await auth().signOut();
+      if (auth().currentUser) {
+        await auth().signOut();
+      }
     } catch (error: any) {
-      throw new Error(error.message);
+      if (
+        error?.code === 'auth/no-current-user' ||
+        error?.message?.includes('no-current-user')
+      ) {
+        return;
+      }
+      throw new Error(error.message || 'Failed to sign out');
     }
   }
 

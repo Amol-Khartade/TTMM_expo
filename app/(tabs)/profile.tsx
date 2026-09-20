@@ -15,10 +15,17 @@ export default function ProfileTabScreen() {
   const biometricLockEnabled = useAppStore((state) => state.biometricLockEnabled);
   const setBiometricLockEnabled = useAppStore((state) => state.setBiometricLockEnabled);
   const selectedCurrency = useAppStore((state) => state.selectedCurrency);
+  const setCurrentUser = useAppStore((state) => state.setCurrentUser);
 
   const handleSignOut = async () => {
-    await authService.signOut();
-    router.replace('/(auth)/login');
+    try {
+      await authService.signOut();
+    } catch (error) {
+      console.warn('Sign out error:', error);
+    } finally {
+      setCurrentUser(null);
+      router.replace('/(auth)/login');
+    }
   };
 
   return (
