@@ -30,6 +30,10 @@ export default {
     },
     plugins: [
       'expo-router',
+      'expo-font',
+      'expo-image',
+      'expo-status-bar',
+      'expo-web-browser',
       [
         'expo-splash-screen',
         {
@@ -60,9 +64,6 @@ export default {
         },
       ],
     ],
-    experiments: {
-      typedRoutes: true,
-    },
     extra: {
       eas: {
         projectId: '73363ff8-6333-4f59-a6cc-85d452430185',

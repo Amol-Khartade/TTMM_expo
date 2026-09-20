@@ -1,29 +1,61 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+import 'react-native-gesture-handler';
+import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { TamaguiProvider, Theme } from 'tamagui';
+import { QueryClientProvider } from '@tanstack/react-query';
+import tamaguiConfig from '@/tamagui.config';
+import { queryClient } from '@/services/queryClient';
+import { useAppStore } from '@/store/useAppStore';
+import { authService } from '@/services/authService';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const isDark = useAppStore((state) => state.isDark);
+  const setCurrentUser = useAppStore((state) => state.setCurrentUser);
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+    });
+    return unsubscribe;
+  }, [setCurrentUser]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <TamaguiProvider config={tamaguiConfig} defaultTheme={isDark ? 'dark' : 'light'}>
+      <Theme name={isDark ? 'dark' : 'light'}>
+        <QueryClientProvider client={queryClient}>
+          <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="group/[id]"
+              options={{
+                headerShown: false,
+                presentation: 'card',
+              }}
+            />
+            <Stack.Screen
+              name="expense/add"
+              options={{
+                headerShown: false,
+                presentation: 'modal',
+              }}
+            />
+            <Stack.Screen
+              name="settle/[id]"
+              options={{
+                headerShown: false,
+                presentation: 'modal',
+              }}
+            />
+          </Stack>
+        </QueryClientProvider>
+      </Theme>
+    </TamaguiProvider>
   );
 }

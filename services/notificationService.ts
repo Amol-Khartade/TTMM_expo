@@ -63,22 +63,9 @@ class NotificationService {
       const userDoc = await firestore().collection('users').doc(userId).get();
       const userData = userDoc.data();
       
-      if (userData?.fcmToken) {
-        const message = {
-          token: userData.fcmToken,
-          notification: {
-            title: notificationData.title,
-            body: notificationData.message,
-          },
-          data: notificationData.data ? JSON.stringify(notificationData.data) : '{}',
-        };
-
-        try {
-          await messaging().send(message);
-        } catch (error) {
-          console.error('Error sending push notification:', error);
-        }
-      }
+      // Note: Device push notifications are dispatched server-side via Cloud Functions/Admin SDK.
+      // The notification document recorded in Firestore triggers in-app alerts and server FCM dispatch.
+      console.log(`Notification created for user ${userId}: ${notificationData.title}`);
     } catch (error) {
       console.error('Error sending notification:', error);
     }

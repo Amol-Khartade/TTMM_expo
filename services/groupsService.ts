@@ -142,6 +142,26 @@ class GroupsService {
     }
   }
 
+  async getGroupDetails(groupId: string): Promise<Group> {
+    try {
+      const groupDoc = await firestore()
+        .collection('groups')
+        .doc(groupId)
+        .get();
+
+      if (!groupDoc.exists()) {
+        throw new Error('Group not found');
+      }
+
+      return {
+        id: groupDoc.id,
+        ...groupDoc.data(),
+      } as Group;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
   async deleteGroup(groupId: string): Promise<void> {
     try {
       await firestore()

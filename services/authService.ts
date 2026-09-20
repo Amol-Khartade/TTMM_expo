@@ -13,7 +13,7 @@ class AuthService {
         .doc(firebaseUser.uid)
         .get();
       
-      if (userDoc.exists) {
+      if (userDoc.exists()) {
         return userDoc.data() as User;
       } else {
         throw new Error('User data not found');
@@ -21,6 +21,10 @@ class AuthService {
     } catch (error: any) {
       throw new Error(error.message);
     }
+  }
+
+  async signIn(email: string, password: string): Promise<User> {
+    return this.signInWithEmail(email, password);
   }
 
   async signUpWithEmail(email: string, password: string, displayName: string): Promise<User> {
@@ -87,6 +91,10 @@ class AuthService {
     }
   }
 
+  async signUp(email: string, password: string, displayName: string): Promise<User> {
+    return this.signUpWithEmail(email, password, displayName);
+  }
+
   async getCurrentUser(): Promise<User | null> {
     try {
       const currentUser = auth().currentUser;
@@ -99,7 +107,7 @@ class AuthService {
         .doc(currentUser.uid)
         .get();
 
-      if (userDoc.exists) {
+      if (userDoc.exists()) {
         return userDoc.data() as User;
       }
       
@@ -119,7 +127,7 @@ class AuthService {
             .doc(firebaseUser.uid)
             .get();
           
-          if (userDoc.exists) {
+          if (userDoc.exists()) {
             callback(userDoc.data() as User);
           } else {
             callback(null);
