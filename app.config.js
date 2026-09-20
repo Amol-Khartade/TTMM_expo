@@ -25,7 +25,6 @@ export default {
         foregroundImage: './assets/images/adaptive-icon.png',
         backgroundColor: '#ffffff',
       },
-      edgeToEdgeEnabled: true,
       package: 'com.ttmm.app',
       googleServicesFile: './google-services.json',
       runtimeVersion: '1.0.0',

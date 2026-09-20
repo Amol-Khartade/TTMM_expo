@@ -164,6 +164,19 @@ export function buildUPIUri({ payeeUpiId, payeeName, amount, currency, transacti
   ```
   **Result**: `0 errors` (Clean exit code 0).
 
-- **Expo Configuration**:
+- **Expo Configuration & EAS Update**:
   - `app.config.js` updated with all required Expo 56 plugins (`expo-router`, `expo-font`, `expo-image`, `expo-status-bar`, `expo-web-browser`, `@react-native-firebase/app`, `@react-native-firebase/auth`, `@react-native-firebase/messaging`).
+  - Configured EAS Update URL: `https://u.expo.dev/bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0`.
+  - Configured runtime versions: `1.0.0` for Android, `appVersion` policy for iOS.
+  - Synchronized Android native configuration: `AndroidManifest.xml` meta-data and `strings.xml` (`expo_runtime_version` set to `1.0.0`).
   - `package.json` entry point set to `"main": "expo-router/entry"`.
+
+- **EAS Build & Hermes Fixes**:
+  - **Hermes Compiler Path**: Removed legacy `hermesCommand = ... + "/sdks/hermesc/%OS-BIN%/hermesc"` from legacy build scripts.
+  - **Firebase Dependencies Alignment**: Aligned `@react-native-firebase/app`, `@react-native-firebase/auth`, `@react-native-firebase/firestore`, and `@react-native-firebase/messaging` to synchronized version `^22.3.0`.
+
+- **Continuous Native Generation (CNG) & Expo Doctor**:
+  - Transitioned project to pure Continuous Native Generation (CNG): added `/android` and `/ios` to `.gitignore` and untracked stale native folders from Git.
+  - Cleaned up deprecated `edgeToEdgeEnabled` key from [`app.config.js`](file:///D:/TTMM/TTMM_expo/app.config.js) per Expo SDK 56 / Android 16 guidelines.
+  - Verified prebuild generation via `npx expo prebuild --no-install`.
+  - **`npx expo-doctor` result**: **21/21 checks passed. No issues detected!**
