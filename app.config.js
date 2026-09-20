@@ -2,7 +2,7 @@ export default {
   expo: {
     name: 'TTMM',
     slug: 'ttmm',
-    owner: 'amolkhartade',
+    owner: 'amolkhartade97',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
@@ -66,7 +66,7 @@ export default {
     ],
     extra: {
       eas: {
-        projectId: '73363ff8-6333-4f59-a6cc-85d452430185',
+        projectId: 'bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0',
       },
     },
   },
