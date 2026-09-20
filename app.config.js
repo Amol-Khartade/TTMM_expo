@@ -9,10 +9,16 @@ export default {
     scheme: 'ttmm',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
+    updates: {
+      url: 'https://u.expo.dev/bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0',
+    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.ttmm.app',
       googleServicesFile: './GoogleService-Info.plist',
+      runtimeVersion: {
+        policy: 'appVersion',
+      },
     },
     android: {
       adaptiveIcon: {
@@ -22,6 +28,7 @@ export default {
       edgeToEdgeEnabled: true,
       package: 'com.ttmm.app',
       googleServicesFile: './google-services.json',
+      runtimeVersion: '1.0.0',
     },
     web: {
       bundler: 'metro',
