@@ -16,6 +16,15 @@ export default {
       supportsTablet: true,
       bundleIdentifier: 'com.ttmm.app',
       googleServicesFile: './GoogleService-Info.plist',
+      infoPlist: {
+        CFBundleURLTypes: [
+          {
+            CFBundleURLSchemes: [
+              'com.googleusercontent.apps.490411406261-jcv6h9c36rcujdbs89m7firg1r6s7se3',
+            ],
+          },
+        ],
+      },
       runtimeVersion: {
         policy: 'appVersion',
       },
@@ -49,17 +58,7 @@ export default {
           backgroundColor: '#ffffff',
         },
       ],
-      [
-        '@react-native-firebase/app',
-        {
-          android: {
-            googleServicesFile: './google-services.json',
-          },
-          ios: {
-            googleServicesFile: './GoogleService-Info.plist',
-          },
-        },
-      ],
+      '@react-native-firebase/app',
       '@react-native-firebase/auth',
       [
         '@react-native-firebase/messaging',
