@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "835608230111",
-    "project_id": "ttmm-2b563",
-    "storage_bucket": "ttmm-2b563.firebasestorage.app"
+    "project_number": "490411406261",
+    "project_id": "ttmm-6b629",
+    "storage_bucket": "ttmm-6b629.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:835608230111:android:e4c077b2fb5191b2ef516a",
+        "mobilesdk_app_id": "1:490411406261:android:a48c191cf2df04f773dffc",
         "android_client_info": {
           "package_name": "com.ttmm.app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCxEV0HCTSxI5hxvAUB0Op0wxxlWQkFMf0"
+          "current_key": "AIzaSyDvMOD2urSRo5i3qv90U9WNwW3scyCl6KA"
         }
       ],
       "services": {
