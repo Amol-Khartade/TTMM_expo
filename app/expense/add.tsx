@@ -13,7 +13,7 @@ import {
   Input,
   Separator,
 } from 'tamagui';
-import { X, Check, AlertCircle } from '@tamagui/lucide-icons';
+import { X, Check, AlertCircle, Sparkles } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -29,18 +29,24 @@ import {
   SplitTypeSelector,
   UserAvatar,
   FilterPill,
+  ReceiptScannerModal,
+  ReceiptBadgeCard,
 } from '@/components';
+import { ParsedReceipt } from '@/services/receiptScannerService';
 import { formatCurrency } from '@/utils/formatters';
 
 export default function AddExpenseModal() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { groupId } = useLocalSearchParams<{ groupId?: string }>();
+  const { groupId, scan } = useLocalSearchParams<{ groupId?: string; scan?: string }>();
   const currentUser = useAppStore((state) => state.currentUser);
   const selectedCurrency = useAppStore((state) => state.selectedCurrency);
   const isDark = useAppStore((state) => state.isDark);
 
   const [selectedGroupId] = useState(groupId || '');
+  const [scannerOpen, setScannerOpen] = useState(scan === 'true');
+  const [scannedReceipt, setScannedReceipt] = useState<ParsedReceipt | null>(null);
+
   const { data: userGroups = [] } = useUserGroupsQuery(currentUser?.id);
   const { data: activeGroup } = useGroupDetailsQuery(selectedGroupId || userGroups[0]?.id);
 
@@ -94,6 +100,19 @@ export default function AddExpenseModal() {
       setValue('paidBy', currentUser.id);
     }
   }, [currentUser?.id, watchPaidBy, setValue]);
+
+  const handleReceiptParsed = (receipt: ParsedReceipt) => {
+    setScannedReceipt(receipt);
+    setValue('title', receipt.title, { shouldValidate: true, shouldDirty: true });
+    setValue('amount', receipt.amount, { shouldValidate: true, shouldDirty: true });
+    setValue('category', receipt.category as any, { shouldValidate: true, shouldDirty: true });
+    if (receipt.date) {
+      setValue('date', receipt.date, { shouldValidate: true, shouldDirty: true });
+    }
+    if (receipt.notes) {
+      setValue('notes', receipt.notes, { shouldDirty: true });
+    }
+  };
 
   const onSubmit = async (data: CreateExpenseInput) => {
     try {
@@ -171,6 +190,65 @@ export default function AddExpenseModal() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
           >
+            {/* AI Receipt Scanner Trigger / Scanned Receipt Card */}
+            <MotiView
+              from={{ opacity: 0, translateY: -6 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              transition={{ type: 'spring', damping: 20 }}
+              style={styles.cardMargin}
+            >
+              {scannedReceipt ? (
+                <ReceiptBadgeCard
+                  receipt={scannedReceipt}
+                  onRemove={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                    setScannedReceipt(null);
+                  }}
+                  onPressPreview={() => setScannerOpen(true)}
+                />
+              ) : (
+                <Pressable
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                    setScannerOpen(true);
+                  }}
+                  style={({ pressed }) => [
+                    styles.scanReceiptButton,
+                    {
+                      backgroundColor: isDark
+                        ? 'rgba(56, 189, 248, 0.12)'
+                        : 'rgba(2, 132, 199, 0.07)',
+                      borderColor: isDark
+                        ? 'rgba(56, 189, 248, 0.32)'
+                        : 'rgba(2, 132, 199, 0.22)',
+                    },
+                    pressed && { transform: [{ scale: 0.98 }], opacity: 0.85 },
+                  ]}
+                >
+                  <XStack alignItems="center" justifyContent="center" gap="$2.5">
+                    <YStack
+                      width={30}
+                      height={30}
+                      borderRadius={10}
+                      backgroundColor={isDark ? '#0284c7' : '#0284c7'}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Sparkles size={16} color="#ffffff" />
+                    </YStack>
+                    <YStack>
+                      <Text fontWeight="800" fontSize="$3" color={isDark ? '#38bdf8' : '#0284c7'}>
+                        Scan Receipt with AI
+                      </Text>
+                      <Text fontSize={11} color="$gray10" fontWeight="600">
+                        Auto-fill merchant, amount & category
+                      </Text>
+                    </YStack>
+                  </XStack>
+                </Pressable>
+              )}
+            </MotiView>
+
             {/* Amount & Title Glass Card */}
             <MotiView
               from={{ opacity: 0, translateY: -8, scale: 0.98 }}
@@ -363,6 +441,12 @@ export default function AddExpenseModal() {
             </MotiView>
           </ScrollView>
         </YStack>
+
+        <ReceiptScannerModal
+          open={scannerOpen}
+          onClose={() => setScannerOpen(false)}
+          onReceiptParsed={handleReceiptParsed}
+        />
       </KeyboardAvoidingView>
     </AmbientBackground>
   );
@@ -380,5 +464,14 @@ const styles = StyleSheet.create({
   },
   cardMargin: {
     marginBottom: 14,
+  },
+  scanReceiptButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

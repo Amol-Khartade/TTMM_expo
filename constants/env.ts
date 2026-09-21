@@ -25,6 +25,12 @@ export const ENV = {
     IOS_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_IOS_APP_ID || '1:490411406261:ios:c320994034cc69cd73dffc',
   },
 
+  // Gemini AI API Configuration
+  GEMINI: {
+    API_KEY: process.env.EXPO_PUBLIC_GEMINI_API_KEY || process.env.EXPO_PUBLIC_FIREBASE_API_KEY || '',
+    MODEL: process.env.EXPO_PUBLIC_GEMINI_MODEL || 'gemini-2.5-flash',
+  },
+
   // Google OAuth & Sign-in
   GOOGLE_AUTH: {
     WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '490411406261-jcv6h9c36rcujdbs89m7firg1r6s7se3.apps.googleusercontent.com',

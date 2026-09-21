@@ -67,6 +67,13 @@ export default {
           },
         },
       ],
+      [
+        'expo-image-picker',
+        {
+          photosPermission: 'Allow $(PRODUCT_NAME) to access your photos to scan receipts.',
+          cameraPermission: 'Allow $(PRODUCT_NAME) to access your camera to photograph receipts.',
+        },
+      ],
     ],
     extra: {
       eas: {

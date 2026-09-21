@@ -25,6 +25,8 @@ export * from './groups/AddMemberDialog';
 export * from './expenses/ExpenseCard';
 export * from './expenses/CategorySelector';
 export * from './expenses/SplitTypeSelector';
+export * from './expenses/ReceiptScannerModal';
+export * from './expenses/ReceiptBadgeCard';
 
 // Settlements
 export * from './settlements/SuggestedSettlementCard';

@@ -11,6 +11,7 @@ import {
   Wallet,
   Receipt,
   Layers,
+  Sparkles,
 } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -84,23 +85,43 @@ export default function GroupsTabScreen() {
             </Paragraph>
           </YStack>
 
-          <Button
-            size="$3"
-            borderRadius="$6"
-            backgroundColor="$blue10"
-            color="white"
-            icon={<Plus size={16} color="white" />}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-              setCreateModalOpen(true);
-            }}
-            pressStyle={{ opacity: 0.85, scale: 0.96 }}
-            elevation={2}
-          >
-            <Text color="white" fontWeight="700" fontSize="$2">
-              New Group
-            </Text>
-          </Button>
+          <XStack alignItems="center" gap="$2">
+            <Button
+              size="$3"
+              borderRadius="$6"
+              backgroundColor={isDark ? 'rgba(56, 189, 248, 0.14)' : 'rgba(2, 132, 199, 0.08)'}
+              borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
+              borderWidth={1}
+              icon={<Sparkles size={15} color={isDark ? '#38bdf8' : '#0284c7'} />}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                router.push('/expense/add?scan=true');
+              }}
+              pressStyle={{ opacity: 0.85, scale: 0.96 }}
+            >
+              <Text color={isDark ? '#38bdf8' : '#0284c7'} fontWeight="800" fontSize="$2">
+                Scan Bill
+              </Text>
+            </Button>
+
+            <Button
+              size="$3"
+              borderRadius="$6"
+              backgroundColor="$blue10"
+              color="white"
+              icon={<Plus size={16} color="white" />}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                setCreateModalOpen(true);
+              }}
+              pressStyle={{ opacity: 0.85, scale: 0.96 }}
+              elevation={2}
+            >
+              <Text color="white" fontWeight="700" fontSize="$2">
+                New Group
+              </Text>
+            </Button>
+          </XStack>
         </XStack>
 
         {/* Hero Glass Card: Net Balance Overview */}
