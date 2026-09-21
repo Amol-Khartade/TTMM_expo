@@ -44,3 +44,18 @@ export function useCreateGroupMutation() {
     },
   });
 }
+
+export function useAddMemberMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ groupId, email }: { groupId: string; email: string }) => {
+      return await groupsService.addMemberToGroup(groupId, email);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['group', variables.groupId] });
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
+    },
+  });
+}
+
