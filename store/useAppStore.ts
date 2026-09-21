@@ -73,6 +73,13 @@ export const useAppStore = create<AppUIState>()(
     {
       name: 'ttmm-client-ui-store',
       storage: createJSONStorage(() => mmkvStorage),
+      partialize: (state) => ({
+        isDark: state.isDark,
+        activeGroupId: state.activeGroupId,
+        selectedCurrency: state.selectedCurrency,
+        biometricLockEnabled: state.biometricLockEnabled,
+        // currentUser is excluded to rely strictly on Firebase auth state
+      }),
     }
   )
 );
