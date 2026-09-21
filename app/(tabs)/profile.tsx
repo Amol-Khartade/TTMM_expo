@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { YStack, XStack, Text, H2, Paragraph, Switch, Separator } from 'tamagui';
@@ -21,6 +21,9 @@ import { authService } from '@/services/authService';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { EditProfileModal } from '@/components/profile/EditProfileModal';
+import { EditBudgetModal } from '@/components/profile/EditBudgetModal';
+import { EditCurrencyModal } from '@/components/profile/EditCurrencyModal';
 import { ENV } from '@/constants';
 
 export default function ProfileTabScreen() {
@@ -37,6 +40,10 @@ export default function ProfileTabScreen() {
   const setBudgetAlertsEnabled = useFinanceStore((state) => state.setBudgetAlertsEnabled);
   const monthlyBudget = useFinanceStore((state) => state.monthlyBudget);
   const setCurrentUser = useAppStore((state) => state.setCurrentUser);
+
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isEditBudgetOpen, setIsEditBudgetOpen] = useState(false);
+  const [isEditCurrencyOpen, setIsEditCurrencyOpen] = useState(false);
 
   const handleSignOut = () => {
     Alert.alert(
@@ -83,39 +90,41 @@ export default function ProfileTabScreen() {
             transition={{ type: 'spring', damping: 20 }}
           >
             <GlassCard variant="elevated" borderRadius={24} p={18}>
-              <XStack gap="$3.5" alignItems="center">
-                <UserAvatar
-                  name={currentUser?.displayName}
-                  size="lg"
-                  isCurrentUser
-                />
+              <Pressable onPress={() => setIsEditProfileOpen(true)}>
+                <XStack gap="$3.5" alignItems="center">
+                  <UserAvatar
+                    name={currentUser?.displayName}
+                    size="lg"
+                    isCurrentUser
+                  />
 
-                <YStack flex={1}>
-                  <XStack alignItems="center" gap="$2">
-                    <Text fontWeight="800" fontSize="$5" color="$color" numberOfLines={1}>
-                      {currentUser?.displayName || `${ENV.APP_NAME} Member`}
-                    </Text>
-                    <CheckCircle2 size={16} color="#16a34a" />
-                  </XStack>
-                  <Paragraph size="$2" color="$gray10" numberOfLines={1} mt="$0.5">
-                    {currentUser?.email || 'user@ttmm.app'}
-                  </Paragraph>
-                  <XStack
-                    backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-                    px="$2"
-                    py="$0.5"
-                    borderRadius="$3"
-                    alignSelf="flex-start"
-                    mt="$1.5"
-                    borderWidth={1}
-                    borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
-                  >
-                    <Text fontSize={10} fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} textTransform="uppercase">
-                      Free Unlimited Tier
-                    </Text>
-                  </XStack>
-                </YStack>
-              </XStack>
+                  <YStack flex={1}>
+                    <XStack alignItems="center" gap="$2">
+                      <Text fontWeight="800" fontSize="$5" color="$color" numberOfLines={1}>
+                        {currentUser?.displayName || `${ENV.APP_NAME} Member`}
+                      </Text>
+                      <CheckCircle2 size={16} color="#16a34a" />
+                    </XStack>
+                    <Paragraph size="$2" color="$gray10" numberOfLines={1} mt="$0.5">
+                      {currentUser?.email || 'user@ttmm.app'}
+                    </Paragraph>
+                    <XStack
+                      backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
+                      px="$2"
+                      py="$0.5"
+                      borderRadius="$3"
+                      alignSelf="flex-start"
+                      mt="$1.5"
+                      borderWidth={1}
+                      borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
+                    >
+                      <Text fontSize={10} fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} textTransform="uppercase">
+                        Free Unlimited Tier
+                      </Text>
+                    </XStack>
+                  </YStack>
+                </XStack>
+              </Pressable>
             </GlassCard>
           </MotiView>
 
@@ -202,37 +211,39 @@ export default function ProfileTabScreen() {
               <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 0.85)'} />
 
               {/* Currency */}
-              <XStack justifyContent="space-between" alignItems="center" py="$2">
-                <XStack gap="$3" alignItems="center">
-                  <YStack
-                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
-                    p="$2"
-                    borderRadius="$3"
+              <Pressable onPress={() => setIsEditCurrencyOpen(true)}>
+                <XStack justifyContent="space-between" alignItems="center" py="$2">
+                  <XStack gap="$3" alignItems="center">
+                    <YStack
+                      backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
+                      p="$2"
+                      borderRadius="$3"
+                    >
+                      <DollarSign size={18} color={isDark ? '#94a3b8' : '#64748b'} />
+                    </YStack>
+                    <YStack>
+                      <Text fontWeight="700" fontSize="$3" color="$color">
+                        Default Currency
+                      </Text>
+                      <Paragraph size="$1" color="$gray10">
+                        Standard denomination for balances
+                      </Paragraph>
+                    </YStack>
+                  </XStack>
+                  <XStack
+                    backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
+                    px="$3"
+                    py="$1"
+                    borderRadius="$4"
+                    borderWidth={1}
+                    borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
                   >
-                    <DollarSign size={18} color={isDark ? '#94a3b8' : '#64748b'} />
-                  </YStack>
-                  <YStack>
-                    <Text fontWeight="700" fontSize="$3" color="$color">
-                      Default Currency
+                    <Text fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} fontSize="$3">
+                      {selectedCurrency}
                     </Text>
-                    <Paragraph size="$1" color="$gray10">
-                      Standard denomination for balances
-                    </Paragraph>
-                  </YStack>
+                  </XStack>
                 </XStack>
-                <XStack
-                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-                  px="$3"
-                  py="$1"
-                  borderRadius="$4"
-                  borderWidth={1}
-                  borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
-                >
-                  <Text fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} fontSize="$3">
-                    {selectedCurrency}
-                  </Text>
-                </XStack>
-              </XStack>
+              </Pressable>
             </GlassCard>
           </MotiView>
 
@@ -255,37 +266,39 @@ export default function ProfileTabScreen() {
               </Text>
 
               {/* Budget Limit */}
-              <XStack justifyContent="space-between" alignItems="center" py="$2">
-                <XStack gap="$3" alignItems="center">
-                  <YStack
-                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
-                    p="$2"
-                    borderRadius="$3"
+              <Pressable onPress={() => setIsEditBudgetOpen(true)}>
+                <XStack justifyContent="space-between" alignItems="center" py="$2">
+                  <XStack gap="$3" alignItems="center">
+                    <YStack
+                      backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
+                      p="$2"
+                      borderRadius="$3"
+                    >
+                      <Wallet size={18} color={isDark ? '#94a3b8' : '#64748b'} />
+                    </YStack>
+                    <YStack>
+                      <Text fontWeight="700" fontSize="$3" color="$color">
+                        Monthly Budget
+                      </Text>
+                      <Paragraph size="$1" color="$gray10">
+                        Manage limits
+                      </Paragraph>
+                    </YStack>
+                  </XStack>
+                  <XStack
+                    backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
+                    px="$3"
+                    py="$1"
+                    borderRadius="$4"
+                    borderWidth={1}
+                    borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
                   >
-                    <Wallet size={18} color={isDark ? '#94a3b8' : '#64748b'} />
-                  </YStack>
-                  <YStack>
-                    <Text fontWeight="700" fontSize="$3" color="$color">
-                      Monthly Budget
+                    <Text fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} fontSize="$3">
+                      {selectedCurrency} {monthlyBudget}
                     </Text>
-                    <Paragraph size="$1" color="$gray10">
-                      Manage limits
-                    </Paragraph>
-                  </YStack>
+                  </XStack>
                 </XStack>
-                <XStack
-                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-                  px="$3"
-                  py="$1"
-                  borderRadius="$4"
-                  borderWidth={1}
-                  borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
-                >
-                  <Text fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} fontSize="$3">
-                    {selectedCurrency} {monthlyBudget}
-                  </Text>
-                </XStack>
-              </XStack>
+              </Pressable>
 
               <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 0.85)'} />
 
@@ -392,6 +405,10 @@ export default function ProfileTabScreen() {
           </Text>
         </YStack>
       </YStack>
+
+      <EditProfileModal open={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
+      <EditBudgetModal open={isEditBudgetOpen} onClose={() => setIsEditBudgetOpen(false)} />
+      <EditCurrencyModal open={isEditCurrencyOpen} onClose={() => setIsEditCurrencyOpen(false)} />
     </AmbientBackground>
   );
 }

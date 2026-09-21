@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { Share } from 'react-native';
 import { XStack, Button, Dialog, Input, Text, Paragraph } from 'tamagui';
-import { AlertCircle } from '@tamagui/lucide-icons';
+import { AlertCircle, Link } from '@tamagui/lucide-icons';
 import { useAppStore } from '@/store/useAppStore';
 
 export interface AddMemberDialogProps {
@@ -95,7 +96,7 @@ export const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
             color="$color"
           />
 
-          <XStack justifyContent="flex-end" gap="$2.5">
+          <XStack justifyContent="flex-end" gap="$2.5" mb="$4">
             <Button
               chromeless
               borderRadius="$4"
@@ -115,6 +116,30 @@ export const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
               </Text>
             </Button>
           </XStack>
+
+          <XStack alignItems="center" gap="$3" mb="$4">
+            <XStack flex={1} height={1} backgroundColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} />
+            <Text fontSize="$2" color="$gray10">OR</Text>
+            <XStack flex={1} height={1} backgroundColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} />
+          </XStack>
+
+          <Button
+            variant="outlined"
+            icon={<Link size={16} />}
+            onPress={async () => {
+              try {
+                const inviteLink = `https://ttmm.app/join/mock-group-id`; // Replace with actual group ID logic if passed
+                await Share.share({
+                  message: `Join my group ${groupName} on TTMM! ${inviteLink}`,
+                });
+              } catch (error) {
+                console.error(error);
+              }
+            }}
+            borderRadius="$4"
+          >
+            Share Invite Link
+          </Button>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
