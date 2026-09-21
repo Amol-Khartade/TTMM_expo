@@ -1,73 +1,266 @@
-import React from 'react';
-import { YStack, XStack, Text, Button, Card, H2, Paragraph } from 'tamagui';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { YStack, XStack, Text, Button, H2, Paragraph, Dialog, Input } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
-import { User, UserPlus } from '@tamagui/lucide-icons';
+import { User, UserPlus, ArrowUpRight, ArrowDownLeft, CheckCircle2 } from '@tamagui/lucide-icons';
+import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 import { useAppStore } from '@/store/useAppStore';
+import { AmbientBackground } from '@/components/ui/AmbientBackground';
+import { GlassCard } from '@/components/ui/GlassCard';
+
+interface FriendItem {
+  id: string;
+  name: string;
+  email: string;
+  netBalance: number;
+}
 
 export default function FriendsTabScreen() {
   const insets = useSafeAreaInsets();
   const selectedCurrency = useAppStore((state) => state.selectedCurrency);
+  const isDark = useAppStore((state) => state.isDark);
 
-  // In real app, pulled via TanStack Query for 1-on-1 balances
-  const friends: Array<{ id: string; name: string; email: string; netBalance: number }> = [];
+  const [addFriendOpen, setAddFriendOpen] = useState(false);
+  const [friendEmail, setFriendEmail] = useState('');
 
-  return (
-    <YStack flex={1} pt={insets.top} px="$4" backgroundColor="$background">
-      <XStack justifyContent="space-between" alignItems="center" py="$3">
-        <YStack>
-          <H2 fontWeight="900" color="$color">
-            Friends
-          </H2>
-          <Paragraph size="$2" color="$gray10">
-            1-on-1 Balances & Direct Splits
-          </Paragraph>
-        </YStack>
-        <Button size="$3" theme="active" icon={<UserPlus size={16} />} borderRadius="$6">
-          Add Friend
-        </Button>
-      </XStack>
+  // 1-on-1 direct friends ledger
+  const friends: FriendItem[] = [];
 
-      <YStack flex={1}>
-        <FlashList
-          data={friends}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <Card borderWidth={1} borderColor="#e2e8f0" borderRadius="$5" mb="$3" p="$3">
-              <XStack justifyContent="space-between" alignItems="center">
-                <XStack gap="$3" alignItems="center">
-                  <YStack backgroundColor="$gray4" p="$2" borderRadius="$3">
-                    <User size={20} color="#64748b" />
-                  </YStack>
-                  <YStack>
-                    <Text fontWeight="700">{item.name}</Text>
-                    <Paragraph size="$1" color="$gray10">
-                      {item.email}
-                    </Paragraph>
-                  </YStack>
-                </XStack>
-                <Text
-                  fontWeight="800"
-                  color={item.netBalance >= 0 ? '$green10' : '$red10'}
-                >
-                  {item.netBalance >= 0 ? `+${selectedCurrency} ${item.netBalance}` : `-${selectedCurrency} ${Math.abs(item.netBalance)}`}
-                </Text>
-              </XStack>
-            </Card>
-          )}
-          ListEmptyComponent={
-            <YStack alignItems="center" justifyContent="center" py="$8" px="$4">
-              <User size={48} color="#94a3b8" />
-              <Text mt="$3" fontWeight="700" fontSize="$5" textAlign="center">
-                No direct friends added yet
+  const handleAddFriend = () => {
+    if (!friendEmail.trim()) return;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    setFriendEmail('');
+    setAddFriendOpen(false);
+  };
+
+  const renderFriendItem = ({ item, index }: { item: FriendItem; index: number }) => {
+    const initials = item.name
+      .split(' ')
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+    return (
+      <GlassCard
+        key={item.id}
+        variant="card"
+        borderRadius={20}
+        p={14}
+        animate
+        delay={index * 50}
+        style={styles.cardMargin}
+      >
+        <XStack justifyContent="space-between" alignItems="center">
+          <XStack gap="$3" alignItems="center" flex={1}>
+            <YStack
+              backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : '#e0f2fe'}
+              width={44}
+              height={44}
+              borderRadius={14}
+              alignItems="center"
+              justifyContent="center"
+              borderWidth={1}
+              borderColor={isDark ? 'rgba(56, 189, 248, 0.3)' : '#bae6fd'}
+            >
+              <Text fontSize={14} fontWeight="800" color="#0284c7">
+                {initials}
               </Text>
-              <Paragraph size="$2" color="$gray10" textAlign="center" mt="$1">
-                Split bills 1-on-1 with anyone without creating a group.
+            </YStack>
+            <YStack flex={1}>
+              <Text fontWeight="800" fontSize="$4" color="$color">
+                {item.name}
+              </Text>
+              <Paragraph size="$1" color="$gray10" numberOfLines={1}>
+                {item.email}
               </Paragraph>
             </YStack>
-          }
-        />
+          </XStack>
+
+          <YStack alignItems="flex-end">
+            {item.netBalance > 0.01 ? (
+              <XStack alignItems="center" gap="$1">
+                <ArrowUpRight size={14} color="#16a34a" />
+                <Text fontWeight="900" fontSize="$4" color="#16a34a">
+                  +{selectedCurrency} {item.netBalance.toFixed(2)}
+                </Text>
+              </XStack>
+            ) : item.netBalance < -0.01 ? (
+              <XStack alignItems="center" gap="$1">
+                <ArrowDownLeft size={14} color="#e11d48" />
+                <Text fontWeight="900" fontSize="$4" color="#e11d48">
+                  -{selectedCurrency} {Math.abs(item.netBalance).toFixed(2)}
+                </Text>
+              </XStack>
+            ) : (
+              <XStack alignItems="center" gap="$1">
+                <CheckCircle2 size={14} color="#16a34a" />
+                <Text fontWeight="700" fontSize="$2" color="$gray10">
+                  Settled
+                </Text>
+              </XStack>
+            )}
+          </YStack>
+        </XStack>
+      </GlassCard>
+    );
+  };
+
+  return (
+    <AmbientBackground>
+      <YStack flex={1} pt={insets.top} px="$4">
+        {/* Header */}
+        <XStack justifyContent="space-between" alignItems="center" py="$2.5">
+          <YStack>
+            <H2 fontWeight="900" color="$color" letterSpacing={-0.5} fontSize="$7">
+              Friends
+            </H2>
+            <Paragraph size="$2" color="$gray10" mt="$-1">
+              1-on-1 Balances & Direct Splits
+            </Paragraph>
+          </YStack>
+          <Button
+            size="$3"
+            borderRadius="$6"
+            backgroundColor="$blue10"
+            color="white"
+            icon={<UserPlus size={16} color="white" />}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+              setAddFriendOpen(true);
+            }}
+            pressStyle={{ opacity: 0.85, scale: 0.96 }}
+          >
+            <Text color="white" fontWeight="700" fontSize="$2">
+              Add Friend
+            </Text>
+          </Button>
+        </XStack>
+
+        <YStack flex={1} mt="$2">
+          <FlashList
+            data={friends}
+            keyExtractor={(item) => item.id}
+            renderItem={renderFriendItem}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}
+            ListEmptyComponent={
+              <MotiView
+                from={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', damping: 18 }}
+              >
+                <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
+                  <YStack alignItems="center" justifyContent="center">
+                    <YStack
+                      backgroundColor={isDark ? 'rgba(2, 132, 199, 0.2)' : '#e0f2fe'}
+                      width={64}
+                      height={64}
+                      borderRadius={22}
+                      alignItems="center"
+                      justifyContent="center"
+                      mb="$3"
+                    >
+                      <User size={32} color="#0284c7" />
+                    </YStack>
+                    <Text mt="$1" fontWeight="800" fontSize="$5" color="$color" textAlign="center">
+                      No direct friends added yet
+                    </Text>
+                    <Paragraph size="$2" color="$gray10" textAlign="center" mt="$1.5" px="$3">
+                      Split restaurant checks, rides, and gifts 1-on-1 with anyone without creating a group.
+                    </Paragraph>
+                    <Button
+                      mt="$4"
+                      size="$3"
+                      borderRadius="$6"
+                      backgroundColor="$blue10"
+                      color="white"
+                      icon={<UserPlus size={16} color="white" />}
+                      onPress={() => setAddFriendOpen(true)}
+                    >
+                      Add First Friend
+                    </Button>
+                  </YStack>
+                </GlassCard>
+              </MotiView>
+            }
+          />
+        </YStack>
+
+        {/* Add Friend Dialog */}
+        <Dialog open={addFriendOpen} onOpenChange={setAddFriendOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay
+              key="overlay"
+              opacity={0.65}
+              backgroundColor="rgba(0,0,0,0.6)"
+            />
+            <Dialog.Content
+              key="content"
+              p="$4"
+              width="90%"
+              borderRadius={24}
+              backgroundColor={isDark ? '#1e293b' : '#ffffff'}
+              borderWidth={1}
+              borderColor={isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}
+              elevation={8}
+            >
+              <Dialog.Title fontWeight="800" fontSize="$5" color="$color">
+                Add Friend
+              </Dialog.Title>
+              <Dialog.Description size="$2" color="$gray10" mb="$3.5">
+                Enter your friend's registered email to link your accounts.
+              </Dialog.Description>
+
+              <Input
+                placeholder="friend@example.com"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                value={friendEmail}
+                onChangeText={setFriendEmail}
+                mb="$4"
+                borderRadius="$4"
+                borderWidth={1}
+                borderColor="$gray6"
+                backgroundColor={isDark ? '#0f172a' : '$gray2'}
+              />
+
+              <XStack justifyContent="flex-end" gap="$2.5">
+                <Button
+                  chromeless
+                  borderRadius="$4"
+                  onPress={() => setAddFriendOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  backgroundColor="$blue10"
+                  color="white"
+                  borderRadius="$4"
+                  onPress={handleAddFriend}
+                  disabled={!friendEmail.trim()}
+                >
+                  <Text color="white" fontWeight="700">
+                    Add
+                  </Text>
+                </Button>
+              </XStack>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
       </YStack>
-    </YStack>
+    </AmbientBackground>
   );
 }
+
+const styles = StyleSheet.create({
+  cardMargin: {
+    marginBottom: 10,
+  },
+  emptyCard: {
+    marginTop: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
