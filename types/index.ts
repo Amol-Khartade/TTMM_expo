@@ -13,6 +13,7 @@ export interface Group {
   name: string;
   description?: string;
   members: GroupMember[];
+  memberIds?: string[];
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;

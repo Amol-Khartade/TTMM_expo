@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import firestore from '@react-native-firebase/firestore';
 import { Settlement } from '@/types';
 import { expensesService } from '@/services/expensesService';
 
@@ -8,16 +7,7 @@ export function useGroupSettlementsQuery(groupId: string | undefined) {
     queryKey: ['settlements', groupId],
     queryFn: async () => {
       if (!groupId) return [];
-      const snapshot = await firestore()
-        .collection('settlements')
-        .where('groupId', '==', groupId)
-        .orderBy('createdAt', 'desc')
-        .get();
-
-      return snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Settlement[];
+      return await expensesService.getGroupSettlements(groupId);
     },
     enabled: !!groupId,
   });

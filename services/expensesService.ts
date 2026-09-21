@@ -1,29 +1,47 @@
-import firestore from '@react-native-firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  getDocs,
+} from '@react-native-firebase/firestore';
 import { Expense, Balance, Settlement, Group } from '@/types';
 import { notificationService } from './notificationService';
+import { sanitizeForFirestore } from '@/utils/firestoreUtils';
 
 class ExpensesService {
   async addExpense(expenseData: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<Expense> {
     try {
+      const db = getFirestore();
       const expense: Omit<Expense, 'id'> = {
         ...expenseData,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      const docRef = await firestore().collection('expenses').add(expense);
+      const cleanExpense = sanitizeForFirestore(expense);
+      const expensesCol = collection(db, 'expenses');
+      const docRef = await addDoc(expensesCol, cleanExpense);
 
-      const groupDoc = await firestore().collection('groups').doc(expenseData.groupId).get();
-      const groupData = groupDoc.data() as Group;
+      const groupDocRef = doc(db, 'groups', expenseData.groupId);
+      const groupDoc = await getDoc(groupDocRef);
+      const groupData = groupDoc.exists() ? (groupDoc.data() as Group) : null;
 
-      for (const member of groupData.members) {
-        if (member.userId !== expenseData.createdBy) {
-          await notificationService.sendNotification(member.userId, {
-            type: 'expense_added',
-            title: 'New Expense Added',
-            message: `${expenseData.title} - ₹${expenseData.amount}`,
-            data: { groupId: expenseData.groupId, expenseId: docRef.id },
-          });
+      if (groupData?.members) {
+        for (const member of groupData.members) {
+          if (member.userId !== expenseData.createdBy) {
+            await notificationService.sendNotification(member.userId, {
+              type: 'expense_added',
+              title: 'New Expense Added',
+              message: `${expenseData.title} - ₹${expenseData.amount}`,
+              data: { groupId: expenseData.groupId, expenseId: docRef.id },
+            });
+          }
         }
       }
 
@@ -38,16 +56,24 @@ class ExpensesService {
 
   async getGroupExpenses(groupId: string): Promise<Expense[]> {
     try {
-      const snapshot = await firestore()
-        .collection('expenses')
-        .where('groupId', '==', groupId)
-        .orderBy('date', 'desc')
-        .get();
+      const db = getFirestore();
+      const expensesCol = collection(db, 'expenses');
+      const q = query(expensesCol, where('groupId', '==', groupId));
+      const snapshot = await getDocs(q);
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
+      const expenses = snapshot.docs.map((d: any) => ({
+        id: d.id,
+        ...d.data(),
       })) as Expense[];
+
+      // Sort in-memory to avoid requiring a composite index in Firestore
+      expenses.sort((a, b) => {
+        const timeA = a.date ? new Date(a.date).getTime() : 0;
+        const timeB = b.date ? new Date(b.date).getTime() : 0;
+        return timeB - timeA;
+      });
+
+      return expenses;
     } catch (error: any) {
       throw new Error(error.message);
     }
@@ -55,20 +81,16 @@ class ExpensesService {
 
   async updateExpense(expenseId: string, updates: Partial<Expense>): Promise<Expense> {
     try {
-      const updateData = {
+      const db = getFirestore();
+      const expenseDocRef = doc(db, 'expenses', expenseId);
+      const updateData = sanitizeForFirestore({
         ...updates,
         updatedAt: new Date(),
-      };
+      });
 
-      await firestore()
-        .collection('expenses')
-        .doc(expenseId)
-        .update(updateData);
+      await updateDoc(expenseDocRef, updateData);
 
-      const updatedDoc = await firestore()
-        .collection('expenses')
-        .doc(expenseId)
-        .get();
+      const updatedDoc = await getDoc(expenseDocRef);
 
       return {
         id: updatedDoc.id,
@@ -81,7 +103,9 @@ class ExpensesService {
 
   async deleteExpense(expenseId: string): Promise<void> {
     try {
-      await firestore().collection('expenses').doc(expenseId).delete();
+      const db = getFirestore();
+      const expenseDocRef = doc(db, 'expenses', expenseId);
+      await deleteDoc(expenseDocRef);
     } catch (error: any) {
       throw new Error(error.message);
     }
@@ -94,11 +118,11 @@ class ExpensesService {
 
       expenses.forEach(expense => {
         const totalSplitAmount = expense.splitDetails.reduce((sum, split) => sum + split.amount, 0);
-        
+
         if (!balances.has(expense.paidBy)) {
           balances.set(expense.paidBy, 0);
         }
-        balances.set(expense.paidBy, balances.get(expense.paidBy)! + expense.amount);
+        balances.set(expense.paidBy, balances.get(expense.paidBy)! + totalSplitAmount);
 
         expense.splitDetails.forEach(split => {
           if (!balances.has(split.userId)) {
@@ -108,10 +132,25 @@ class ExpensesService {
         });
       });
 
+      const settlements = await this.getGroupSettlements(groupId);
+      settlements.forEach(settlement => {
+        if (settlement.status === 'completed') {
+          if (!balances.has(settlement.fromUserId)) {
+            balances.set(settlement.fromUserId, 0);
+          }
+          balances.set(settlement.fromUserId, balances.get(settlement.fromUserId)! + settlement.amount);
+
+          if (!balances.has(settlement.toUserId)) {
+            balances.set(settlement.toUserId, 0);
+          }
+          balances.set(settlement.toUserId, balances.get(settlement.toUserId)! - settlement.amount);
+        }
+      });
+
       return Array.from(balances.entries()).map(([userId, amount]) => ({
         userId,
         groupId,
-        amount,
+        amount: Math.round(amount * 100) / 100,
         currency: 'INR',
       }));
     } catch (error: any) {
@@ -119,14 +158,41 @@ class ExpensesService {
     }
   }
 
+  async getGroupSettlements(groupId: string): Promise<Settlement[]> {
+    try {
+      const db = getFirestore();
+      const settlementsCol = collection(db, 'settlements');
+      const q = query(settlementsCol, where('groupId', '==', groupId));
+      const snapshot = await getDocs(q);
+
+      const settlements = snapshot.docs.map((d: any) => ({
+        id: d.id,
+        ...d.data(),
+      })) as Settlement[];
+
+      settlements.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
+      });
+
+      return settlements;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
   async createSettlement(settlementData: Omit<Settlement, 'id' | 'createdAt' | 'settledAt'>): Promise<Settlement> {
     try {
+      const db = getFirestore();
       const settlement: Omit<Settlement, 'id'> = {
         ...settlementData,
         createdAt: new Date(),
       };
 
-      const docRef = await firestore().collection('settlements').add(settlement);
+      const cleanSettlement = sanitizeForFirestore(settlement);
+      const settlementsCol = collection(db, 'settlements');
+      const docRef = await addDoc(settlementsCol, cleanSettlement);
 
       await notificationService.sendNotification(settlementData.toUserId, {
         type: 'settlement_request',
@@ -146,20 +212,16 @@ class ExpensesService {
 
   async completeSettlement(settlementId: string): Promise<Settlement> {
     try {
+      const db = getFirestore();
+      const settlementDocRef = doc(db, 'settlements', settlementId);
       const updateData = {
         status: 'completed' as const,
         settledAt: new Date(),
       };
 
-      await firestore()
-        .collection('settlements')
-        .doc(settlementId)
-        .update(updateData);
+      await updateDoc(settlementDocRef, updateData);
 
-      const updatedDoc = await firestore()
-        .collection('settlements')
-        .doc(settlementId)
-        .get();
+      const updatedDoc = await getDoc(settlementDocRef);
 
       return {
         id: updatedDoc.id,
@@ -175,7 +237,7 @@ class ExpensesService {
       case 'equal':
         const equalAmount = Math.round((amount / memberIds.length) * 100) / 100;
         return memberIds.map(userId => ({ userId, amount: equalAmount }));
-      
+
       case 'percentage':
         if (!customSplits || customSplits.length !== memberIds.length) {
           throw new Error('Invalid percentage splits');
@@ -189,7 +251,7 @@ class ExpensesService {
           amount: Math.round((amount * customSplits[index] / 100) * 100) / 100,
           percentage: customSplits[index],
         }));
-      
+
       case 'exact':
         if (!customSplits || customSplits.length !== memberIds.length) {
           throw new Error('Invalid exact splits');
@@ -202,7 +264,7 @@ class ExpensesService {
           userId,
           amount: customSplits[index],
         }));
-      
+
       default:
         throw new Error('Invalid split type');
     }

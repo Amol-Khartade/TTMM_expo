@@ -14,6 +14,7 @@ import {
   updateDoc,
 } from '@react-native-firebase/firestore';
 import { User } from '@/types';
+import { sanitizeForFirestore } from '@/utils/firestoreUtils';
 
 class AuthService {
   async signInWithEmail(email: string, password: string): Promise<User> {
@@ -94,16 +95,9 @@ class AuthService {
         throw new Error('No authenticated user');
       }
 
-      const updatedData: Record<string, any> = {
+      const updatedData = sanitizeForFirestore({
         ...userData,
         updatedAt: new Date(),
-      };
-
-      // Remove undefined values to prevent Firestore crashes
-      Object.keys(updatedData).forEach((key) => {
-        if (updatedData[key] === undefined) {
-          delete updatedData[key];
-        }
       });
 
       const userDocRef = doc(db, 'users', currentUser.uid);
