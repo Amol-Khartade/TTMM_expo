@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { YStack, XStack, Text, Button, H2, Paragraph, Dialog, Input } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
-import { User, UserPlus, ArrowUpRight, ArrowDownLeft, CheckCircle2 } from '@tamagui/lucide-icons';
-import { MotiView } from 'moti';
+import { User, UserPlus } from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useAppStore } from '@/store/useAppStore';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { BalanceStatusBadge } from '@/components/ui/BalanceStatusBadge';
+import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
 
 interface FriendItem {
   id: string;
@@ -36,13 +38,6 @@ export default function FriendsTabScreen() {
   };
 
   const renderFriendItem = ({ item, index }: { item: FriendItem; index: number }) => {
-    const initials = item.name
-      .split(' ')
-      .map((p) => p[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-
     return (
       <GlassCard
         key={item.id}
@@ -55,20 +50,8 @@ export default function FriendsTabScreen() {
       >
         <XStack justifyContent="space-between" alignItems="center">
           <XStack gap="$3" alignItems="center" flex={1}>
-            <YStack
-              backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-              width={44}
-              height={44}
-              borderRadius={14}
-              alignItems="center"
-              justifyContent="center"
-              borderWidth={1}
-              borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
-            >
-              <Text fontSize={14} fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'}>
-                {initials}
-              </Text>
-            </YStack>
+            <UserAvatar name={item.name} size="md" />
+
             <YStack flex={1}>
               <Text fontWeight="800" fontSize="$4" color="$color">
                 {item.name}
@@ -80,28 +63,11 @@ export default function FriendsTabScreen() {
           </XStack>
 
           <YStack alignItems="flex-end">
-            {item.netBalance > 0.01 ? (
-              <XStack alignItems="center" gap="$1">
-                <ArrowUpRight size={14} color="#16a34a" />
-                <Text fontWeight="900" fontSize="$4" color="#16a34a">
-                  +{selectedCurrency} {item.netBalance.toFixed(2)}
-                </Text>
-              </XStack>
-            ) : item.netBalance < -0.01 ? (
-              <XStack alignItems="center" gap="$1">
-                <ArrowDownLeft size={14} color="#e11d48" />
-                <Text fontWeight="900" fontSize="$4" color="#e11d48">
-                  -{selectedCurrency} {Math.abs(item.netBalance).toFixed(2)}
-                </Text>
-              </XStack>
-            ) : (
-              <XStack alignItems="center" gap="$1">
-                <CheckCircle2 size={14} color="#16a34a" />
-                <Text fontWeight="700" fontSize="$2" color="$gray10">
-                  Settled
-                </Text>
-              </XStack>
-            )}
+            <BalanceStatusBadge
+              balance={item.netBalance}
+              currency={selectedCurrency}
+              variant="compact"
+            />
           </YStack>
         </XStack>
       </GlassCard>
@@ -146,46 +112,14 @@ export default function FriendsTabScreen() {
             renderItem={renderFriendItem}
             contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}
             ListEmptyComponent={
-              <MotiView
-                from={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', damping: 18 }}
-              >
-                <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
-                  <YStack alignItems="center" justifyContent="center">
-                    <YStack
-                      backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-                      width={64}
-                      height={64}
-                      borderRadius={22}
-                      borderWidth={1}
-                      borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
-                      alignItems="center"
-                      justifyContent="center"
-                      mb="$3"
-                    >
-                      <User size={32} color={isDark ? '#38bdf8' : '#0284c7'} />
-                    </YStack>
-                    <Text mt="$1" fontWeight="800" fontSize="$5" color="$color" textAlign="center">
-                      No direct friends added yet
-                    </Text>
-                    <Paragraph size="$2" color="$gray10" textAlign="center" mt="$1.5" px="$3">
-                      Split restaurant checks, rides, and gifts 1-on-1 with anyone without creating a group.
-                    </Paragraph>
-                    <Button
-                      mt="$4"
-                      size="$3"
-                      borderRadius="$6"
-                      backgroundColor="$blue10"
-                      color="white"
-                      icon={<UserPlus size={16} color="white" />}
-                      onPress={() => setAddFriendOpen(true)}
-                    >
-                      Add First Friend
-                    </Button>
-                  </YStack>
-                </GlassCard>
-              </MotiView>
+              <EmptyStateCard
+                icon={User}
+                title="No direct friends added yet"
+                description="Split restaurant checks, rides, and gifts 1-on-1 with anyone without creating a group."
+                actionLabel="Add First Friend"
+                actionIcon={UserPlus}
+                onAction={() => setAddFriendOpen(true)}
+              />
             }
           />
         </YStack>
@@ -260,10 +194,5 @@ export default function FriendsTabScreen() {
 const styles = StyleSheet.create({
   cardMargin: {
     marginBottom: 10,
-  },
-  emptyCard: {
-    marginTop: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

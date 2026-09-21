@@ -5,6 +5,7 @@ import { ArrowRight, Wallet } from '@tamagui/lucide-icons';
 import * as Haptics from 'expo-haptics';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { useAppStore } from '@/store/useAppStore';
+import { formatCurrency } from '@/utils/formatters';
 
 export interface SuggestedSettlementCardProps {
   fromName: string;
@@ -68,7 +69,7 @@ export const SuggestedSettlementCard: React.FC<SuggestedSettlementCardProps> = (
 
         <YStack alignItems="flex-end" gap="$1">
           <Text fontWeight="900" fontSize="$5" color={owedColor}>
-            {currency} {amount.toFixed(2)}
+            {formatCurrency(amount, currency)}
           </Text>
           <Button
             size="$2"

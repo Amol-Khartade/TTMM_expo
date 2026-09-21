@@ -22,7 +22,6 @@ import {
   UserPlus,
   Users,
 } from '@tamagui/lucide-icons';
-import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useGroupDetailsQuery, useAddMemberMutation } from '@/queries/useGroups';
@@ -41,6 +40,7 @@ import {
   MemberNetPositionRow,
   AddMemberDialog,
   FloatingActionButton,
+  EmptyStateCard,
 } from '@/components';
 
 export default function GroupDetailScreen() {
@@ -211,51 +211,19 @@ export default function GroupDetailScreen() {
                 />
               }
               ListEmptyComponent={
-                <MotiView
-                  from={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: 'spring', damping: 18 }}
-                >
-                  <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
-                    <YStack alignItems="center" justifyContent="center">
-                      <YStack
-                        backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-                        width={64}
-                        height={64}
-                        borderRadius={22}
-                        borderWidth={1}
-                        borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
-                        alignItems="center"
-                        justifyContent="center"
-                        mb="$3"
-                      >
-                        <DollarSign size={32} color={isDark ? '#38bdf8' : '#0284c7'} />
-                      </YStack>
-                      <Text fontWeight="800" fontSize="$5" color="$color">
-                        No expenses yet
-                      </Text>
-                      <Paragraph size="$2" color="$gray10" textAlign="center" mt="$1.5" px="$3">
-                        Add dinners, drinks, cab rides, or tickets to start splitting automatically.
-                      </Paragraph>
-                      <Button
-                        mt="$4"
-                        borderRadius="$6"
-                        backgroundColor="$blue10"
-                        color="white"
-                        size="$3"
-                        icon={<Plus size={16} color="white" />}
-                        onPress={() => {
-                          (router.push as any)({
-                            pathname: '/expense/add',
-                            params: { groupId: id || '' },
-                          });
-                        }}
-                      >
-                        Add First Expense
-                      </Button>
-                    </YStack>
-                  </GlassCard>
-                </MotiView>
+                <EmptyStateCard
+                  icon={DollarSign}
+                  title="No expenses yet"
+                  description="Add dinners, drinks, cab rides, or tickets to start splitting automatically."
+                  actionLabel="Add First Expense"
+                  actionIcon={Plus}
+                  onAction={() => {
+                    (router.push as any)({
+                      pathname: '/expense/add',
+                      params: { groupId: id || '' },
+                    });
+                  }}
+                />
               }
             />
           </YStack>
@@ -301,32 +269,17 @@ export default function GroupDetailScreen() {
               >
                 Member Net Positions
               </Text>
-              <YStack gap="$2">
-                {memberBalancesList.map((m) => {
-                  const isUser = m.userId === currentUser?.id;
-                  const initials = m.displayName
-                    ? m.displayName
-                        .split(' ')
-                        .map((p: string) => p[0])
-                        .join('')
-                        .toUpperCase()
-                        .slice(0, 2)
-                    : '??';
-
-                  return (
-                    <MemberNetPositionRow
-                      key={m.userId}
-                      displayName={m.displayName}
-                      initials={initials}
-                      isCurrentUser={isUser}
-                      totalPaid={m.totalPaid}
-                      totalOwed={m.totalOwed}
-                      netBalance={m.netBalance}
-                      currency={selectedCurrency}
-                    />
-                  );
-                })}
-              </YStack>
+                {memberBalancesList.map((m) => (
+                  <MemberNetPositionRow
+                    key={m.userId}
+                    displayName={m.displayName}
+                    isCurrentUser={m.userId === currentUser?.id}
+                    totalPaid={m.totalPaid}
+                    totalOwed={m.totalOwed}
+                    netBalance={m.netBalance}
+                    currency={selectedCurrency}
+                  />
+                ))}
             </GlassCard>
 
             {/* Suggested Settlements Section */}
@@ -370,35 +323,13 @@ export default function GroupDetailScreen() {
                 />
               )}
               ListEmptyComponent={
-                <MotiView
-                  from={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: 'spring', damping: 18 }}
-                >
-                  <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
-                    <YStack alignItems="center" justifyContent="center">
-                      <YStack
-                        backgroundColor={isDark ? 'rgba(34, 197, 94, 0.16)' : 'rgba(22, 163, 74, 0.10)'}
-                        width={64}
-                        height={64}
-                        borderRadius={22}
-                        borderWidth={1}
-                        borderColor={isDark ? 'rgba(34, 197, 94, 0.30)' : 'rgba(22, 163, 74, 0.22)'}
-                        alignItems="center"
-                        justifyContent="center"
-                        mb="$3"
-                      >
-                        <CheckCircle2 size={32} color={isDark ? '#4ade80' : '#16a34a'} />
-                      </YStack>
-                      <Text mt="$2" fontWeight="900" fontSize="$5" color={isDark ? '#4ade80' : '#16a34a'}>
-                        All Settled Up!
-                      </Text>
-                      <Paragraph size="$2" color="$gray10" textAlign="center" mt="$1" px="$2">
-                        Nobody in this group owes any money right now.
-                      </Paragraph>
-                    </YStack>
-                  </GlassCard>
-                </MotiView>
+                <EmptyStateCard
+                  icon={CheckCircle2}
+                  title="All Settled Up!"
+                  description="Nobody in this group owes any money right now."
+                  iconColor={isDark ? '#4ade80' : '#16a34a'}
+                  iconBg={isDark ? 'rgba(34, 197, 94, 0.16)' : 'rgba(22, 163, 74, 0.10)'}
+                />
               }
             />
           </YStack>
@@ -444,10 +375,5 @@ const styles = StyleSheet.create({
   },
   cardSpacing: {
     marginBottom: 10,
-  },
-  emptyCard: {
-    marginTop: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

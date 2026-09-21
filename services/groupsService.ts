@@ -13,6 +13,7 @@ import {
 import { Group, GroupMember, User } from '@/types';
 import { notificationService } from './notificationService';
 import { sanitizeForFirestore } from '@/utils/firestoreUtils';
+import { sortByDateDesc } from '@/utils/formatters';
 
 class GroupsService {
   async createGroup(name: string, description: string = '', userId: string): Promise<Group> {
@@ -85,14 +86,7 @@ class GroupsService {
       creatorSnap.docs.forEach(processDoc);
 
       const groups = Array.from(groupsMap.values());
-      // Sort in-memory by updatedAt desc to avoid requiring composite indexes in Firestore
-      groups.sort((a, b) => {
-        const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-        const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-        return timeB - timeA;
-      });
-
-      return groups;
+      return sortByDateDesc(groups, (g) => g.updatedAt);
     } catch (error: any) {
       throw new Error(error.message);
     }

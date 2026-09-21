@@ -18,6 +18,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { authService } from '@/services/authService';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 
 export default function ProfileTabScreen() {
   const insets = useSafeAreaInsets();
@@ -55,15 +56,6 @@ export default function ProfileTabScreen() {
     );
   };
 
-  const initials = currentUser?.displayName
-    ? currentUser.displayName
-        .split(' ')
-        .map((p) => p[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : 'ME';
-
   return (
     <AmbientBackground>
       <YStack flex={1} pt={insets.top} px="$4">
@@ -85,20 +77,11 @@ export default function ProfileTabScreen() {
           >
             <GlassCard variant="elevated" borderRadius={24} p={18}>
               <XStack gap="$3.5" alignItems="center">
-                <YStack
-                  width={56}
-                  height={56}
-                  borderRadius={20}
-                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-                  alignItems="center"
-                  justifyContent="center"
-                  borderWidth={1.5}
-                  borderColor={isDark ? 'rgba(56, 189, 248, 0.35)' : 'rgba(2, 132, 199, 0.20)'}
-                >
-                  <Text fontSize={20} fontWeight="900" color={isDark ? '#38bdf8' : '#0284c7'}>
-                    {initials}
-                  </Text>
-                </YStack>
+                <UserAvatar
+                  name={currentUser?.displayName}
+                  size="lg"
+                  isCurrentUser
+                />
 
                 <YStack flex={1}>
                   <XStack alignItems="center" gap="$2">

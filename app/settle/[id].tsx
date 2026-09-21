@@ -20,6 +20,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { GroupMember } from '@/types';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { FilterPill } from '@/components/ui/FilterPill';
 
 export default function SettleUpModal() {
   const router = useRouter();
@@ -175,53 +176,20 @@ export default function SettleUpModal() {
               </Text>
 
               <XStack gap="$2.5" mb="$3.5">
-                <Pressable
-                  onPress={() => {
-                    Haptics.selectionAsync().catch(() => {});
-                    setPaymentMethod('upi');
-                  }}
-                  style={[
-                    styles.methodButton,
-                    paymentMethod === 'upi'
-                      ? styles.methodActive
-                      : isDark
-                      ? styles.methodInactiveDark
-                      : styles.methodInactiveLight,
-                  ]}
-                >
-                  <QrCode size={18} color={paymentMethod === 'upi' ? 'white' : '#64748b'} />
-                  <Text
-                    fontWeight={paymentMethod === 'upi' ? '800' : '600'}
-                    color={paymentMethod === 'upi' ? 'white' : '$gray11'}
-                    fontSize="$3"
-                  >
-                    UPI Payment
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  onPress={() => {
-                    Haptics.selectionAsync().catch(() => {});
-                    setPaymentMethod('cash');
-                  }}
-                  style={[
-                    styles.methodButton,
-                    paymentMethod === 'cash'
-                      ? styles.methodActive
-                      : isDark
-                      ? styles.methodInactiveDark
-                      : styles.methodInactiveLight,
-                  ]}
-                >
-                  <Banknote size={18} color={paymentMethod === 'cash' ? 'white' : '#64748b'} />
-                  <Text
-                    fontWeight={paymentMethod === 'cash' ? '800' : '600'}
-                    color={paymentMethod === 'cash' ? 'white' : '$gray11'}
-                    fontSize="$3"
-                  >
-                    Cash / Direct
-                  </Text>
-                </Pressable>
+                <FilterPill
+                  label="UPI Payment"
+                  active={paymentMethod === 'upi'}
+                  onPress={() => setPaymentMethod('upi')}
+                  icon={QrCode}
+                  style={{ flex: 1 }}
+                />
+                <FilterPill
+                  label="Cash / Direct"
+                  active={paymentMethod === 'cash'}
+                  onPress={() => setPaymentMethod('cash')}
+                  icon={Banknote}
+                  style={{ flex: 1 }}
+                />
               </XStack>
 
               {paymentMethod === 'upi' && (
@@ -298,28 +266,6 @@ const styles = StyleSheet.create({
   },
   cardCenter: {
     alignItems: 'center',
-  },
-  methodButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    borderRadius: 16,
-  },
-  methodActive: {
-    backgroundColor: '#0284c7',
-  },
-  methodInactiveLight: {
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.85)',
-  },
-  methodInactiveDark: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.09)',
   },
   primaryActionButton: {
     flexDirection: 'row',

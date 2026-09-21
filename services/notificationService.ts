@@ -13,6 +13,7 @@ import {
 } from '@react-native-firebase/firestore';
 import { Notification } from '@/types';
 import { sanitizeForFirestore } from '@/utils/firestoreUtils';
+import { sortByDateDesc } from '@/utils/formatters';
 
 class NotificationService {
   async requestPermission(): Promise<boolean> {
@@ -92,13 +93,8 @@ class NotificationService {
         ...d.data(),
       })) as Notification[];
 
-      notifications.sort((a, b) => {
-        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return timeB - timeA;
-      });
-
-      return notifications.slice(0, 50);
+      const sorted = sortByDateDesc(notifications, (n) => n.createdAt);
+      return sorted.slice(0, 50);
     } catch (error: any) {
       throw new Error(error.message);
     }

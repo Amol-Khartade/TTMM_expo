@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
 import { XStack, YStack, Text, Paragraph } from 'tamagui';
-import { ArrowUpRight, ArrowDownLeft, CheckCircle2 } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { useAppStore } from '@/store/useAppStore';
+import { BalanceStatusBadge } from '@/components/ui/BalanceStatusBadge';
+import { formatCurrency } from '@/utils/formatters';
 
 export interface GroupHeroCardProps {
   totalGroupSpend: number;
@@ -19,8 +19,6 @@ export const GroupHeroCard: React.FC<GroupHeroCardProps> = ({
   currency,
   style,
 }) => {
-  const isDark = useAppStore((state) => state.isDark);
-
   return (
     <MotiView
       from={{ opacity: 0, translateY: -8, scale: 0.98 }}
@@ -46,11 +44,11 @@ export const GroupHeroCard: React.FC<GroupHeroCardProps> = ({
               Total Group Spend
             </Paragraph>
             <Text fontWeight="900" fontSize="$7" color="$color" mt="$1" letterSpacing={-0.5}>
-              {currency} {totalGroupSpend.toFixed(2)}
+              {formatCurrency(totalGroupSpend, currency)}
             </Text>
           </YStack>
 
-          {/* User Net Balance Badge */}
+          {/* User Net Balance Badge (DRY Component) */}
           <YStack alignItems="flex-end">
             <Paragraph
               size="$1"
@@ -61,58 +59,11 @@ export const GroupHeroCard: React.FC<GroupHeroCardProps> = ({
             >
               Your Standing
             </Paragraph>
-            {userNetBalance > 0.01 ? (
-              <XStack
-                backgroundColor={isDark ? 'rgba(34, 197, 94, 0.16)' : 'rgba(22, 163, 74, 0.10)'}
-                px="$2.5"
-                py="$1.5"
-                borderRadius="$4"
-                alignItems="center"
-                gap="$1.5"
-                mt="$1"
-                borderWidth={1}
-                borderColor={isDark ? 'rgba(34, 197, 94, 0.30)' : 'rgba(22, 163, 74, 0.22)'}
-              >
-                <ArrowUpRight size={16} color={isDark ? '#4ade80' : '#16a34a'} />
-                <Text fontWeight="900" fontSize="$4" color={isDark ? '#4ade80' : '#16a34a'}>
-                  +{currency} {userNetBalance.toFixed(2)}
-                </Text>
-              </XStack>
-            ) : userNetBalance < -0.01 ? (
-              <XStack
-                backgroundColor={isDark ? 'rgba(244, 63, 94, 0.16)' : 'rgba(225, 29, 72, 0.10)'}
-                px="$2.5"
-                py="$1.5"
-                borderRadius="$4"
-                alignItems="center"
-                gap="$1.5"
-                mt="$1"
-                borderWidth={1}
-                borderColor={isDark ? 'rgba(244, 63, 94, 0.30)' : 'rgba(225, 29, 72, 0.22)'}
-              >
-                <ArrowDownLeft size={16} color={isDark ? '#fb7185' : '#e11d48'} />
-                <Text fontWeight="900" fontSize="$4" color={isDark ? '#fb7185' : '#e11d48'}>
-                  -{currency} {Math.abs(userNetBalance).toFixed(2)}
-                </Text>
-              </XStack>
-            ) : (
-              <XStack
-                backgroundColor={isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)'}
-                px="$2.5"
-                py="$1.5"
-                borderRadius="$4"
-                alignItems="center"
-                gap="$1.5"
-                mt="$1"
-                borderWidth={1}
-                borderColor={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(226, 232, 240, 0.85)'}
-              >
-                <CheckCircle2 size={16} color="#16a34a" />
-                <Text fontWeight="800" fontSize="$3" color="$gray11">
-                  Settled up
-                </Text>
-              </XStack>
-            )}
+            <BalanceStatusBadge
+              balance={userNetBalance}
+              currency={currency}
+              variant="badge"
+            />
           </YStack>
         </XStack>
       </GlassCard>

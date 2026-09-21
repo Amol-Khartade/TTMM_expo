@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { YStack, XStack, Text, H2, Paragraph } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import {
@@ -8,12 +8,13 @@ import {
   UserPlus,
   Clock,
 } from '@tamagui/lucide-icons';
-import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 import { useAppStore } from '@/store/useAppStore';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { FilterPill } from '@/components/ui/FilterPill';
+import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
+import { formatCurrency } from '@/utils/formatters';
 
 interface ActivityItem {
   id: string;
@@ -38,7 +39,7 @@ export default function ActivityTabScreen() {
       detail: 'Added in Goa Trip 2026 by You',
       timeAgo: '2h ago',
       type: 'expense',
-      amount: `${selectedCurrency} 2,450.00`,
+      amount: formatCurrency(2450, selectedCurrency),
     },
     {
       id: '2',
@@ -46,7 +47,7 @@ export default function ActivityTabScreen() {
       detail: 'Paid via UPI in Goa Trip 2026',
       timeAgo: '1d ago',
       type: 'settlement',
-      amount: `${selectedCurrency} 450.00`,
+      amount: formatCurrency(450, selectedCurrency),
     },
     {
       id: '3',
@@ -54,7 +55,7 @@ export default function ActivityTabScreen() {
       detail: 'Added in Weekend Getaway',
       timeAgo: '2d ago',
       type: 'expense',
-      amount: `${selectedCurrency} 820.00`,
+      amount: formatCurrency(820, selectedCurrency),
     },
     {
       id: '4',
@@ -167,36 +168,23 @@ export default function ActivityTabScreen() {
           </Paragraph>
         </YStack>
 
-        {/* Filter Pills */}
+        {/* Filter Pills (DRY Component) */}
         <XStack gap="$2" my="$3">
           {(['all', 'expense', 'settlement'] as const).map((filter) => {
-            const isActive = activeFilter === filter;
-            const label = filter === 'all' ? 'All Activity' : filter === 'expense' ? 'Expenses' : 'Settlements';
+            const label =
+              filter === 'all'
+                ? 'All Activity'
+                : filter === 'expense'
+                ? 'Expenses'
+                : 'Settlements';
 
             return (
-              <Pressable
+              <FilterPill
                 key={filter}
-                onPress={() => {
-                  Haptics.selectionAsync().catch(() => {});
-                  setActiveFilter(filter);
-                }}
-                style={[
-                  styles.filterPill,
-                  isActive
-                    ? styles.filterPillActive
-                    : isDark
-                    ? styles.filterPillInactiveDark
-                    : styles.filterPillInactiveLight,
-                ]}
-              >
-                <Text
-                  fontSize="$2"
-                  fontWeight={isActive ? '800' : '600'}
-                  color={isActive ? 'white' : '$gray10'}
-                >
-                  {label}
-                </Text>
-              </Pressable>
+                label={label}
+                active={activeFilter === filter}
+                onPress={() => setActiveFilter(filter)}
+              />
             );
           })}
         </XStack>
@@ -208,35 +196,11 @@ export default function ActivityTabScreen() {
             renderItem={renderActivityItem}
             contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}
             ListEmptyComponent={
-              <MotiView
-                from={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', damping: 18 }}
-              >
-                <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
-                  <YStack alignItems="center" justifyContent="center">
-                    <YStack
-                      backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-                      width={64}
-                      height={64}
-                      borderRadius={22}
-                      borderWidth={1}
-                      borderColor={isDark ? 'rgba(56, 189, 248, 0.3)' : 'rgba(2, 132, 199, 0.2)'}
-                      alignItems="center"
-                      justifyContent="center"
-                      mb="$3"
-                    >
-                      <Clock size={32} color={isDark ? '#38bdf8' : '#0284c7'} />
-                    </YStack>
-                    <Text fontWeight="800" fontSize="$5" color="$color" textAlign="center">
-                      No activity recorded
-                    </Text>
-                    <Paragraph size="$2" color="$gray10" textAlign="center" mt="$1.5" px="$3">
-                      New expenses, settlements, and member joins will appear here in real time.
-                    </Paragraph>
-                  </YStack>
-                </GlassCard>
-              </MotiView>
+              <EmptyStateCard
+                icon={Clock}
+                title="No activity recorded"
+                description="New expenses, settlements, and member joins will appear here in real time."
+              />
             }
           />
         </YStack>
@@ -248,29 +212,5 @@ export default function ActivityTabScreen() {
 const styles = StyleSheet.create({
   cardMargin: {
     marginBottom: 10,
-  },
-  emptyCard: {
-    marginTop: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filterPill: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    minHeight: 36,
-  },
-  filterPillActive: {
-    backgroundColor: '#0284c7',
-  },
-  filterPillInactiveLight: {
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.85)',
-  },
-  filterPillInactiveDark: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.09)',
   },
 });

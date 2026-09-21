@@ -5,14 +5,7 @@ import { Expense } from '@/types';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { CategoryBadge } from '@/components/ui/CategoryBadge';
 import { useAppStore } from '@/store/useAppStore';
-
-// Safe date formatter supporting Firestore Timestamps and Date instances
-const formatExpenseDate = (dateVal: any): string => {
-  if (!dateVal) return '';
-  const d = dateVal.toDate ? dateVal.toDate() : new Date(dateVal);
-  if (isNaN(d.getTime())) return '';
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-};
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 export interface ExpenseCardProps {
   expense: Expense;
@@ -54,15 +47,15 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
               {expense.title}
             </Text>
             <Paragraph size="$1" color="$gray10" numberOfLines={1} mt="$0.5">
-              Paid by <Text fontWeight="700" color="$color">{payerName}</Text> • {formatExpenseDate(expense.date)}
+              Paid by <Text fontWeight="700" color="$color">{payerName}</Text> • {formatDate(expense.date)}
             </Paragraph>
             {isPayer ? (
               <Text fontSize="$1" color={isDark ? '#4ade80' : '#16a34a'} fontWeight="700" mt="$0.5">
-                You paid {expense.currency} {expense.amount.toFixed(2)}
+                You paid {formatCurrency(expense.amount, expense.currency)}
               </Text>
             ) : userSplit ? (
               <Text fontSize="$1" color={isDark ? '#fb7185' : '#e11d48'} fontWeight="700" mt="$0.5">
-                Your share: {expense.currency} {userSplit.amount.toFixed(2)}
+                Your share: {formatCurrency(userSplit.amount, expense.currency)}
               </Text>
             ) : null}
           </YStack>
@@ -70,7 +63,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
 
         <YStack alignItems="flex-end" ml="$2">
           <Text fontWeight="900" fontSize="$4" color="$color">
-            {expense.currency} {expense.amount.toFixed(2)}
+            {formatCurrency(expense.amount, expense.currency)}
           </Text>
           {expense.category ? (
             <XStack

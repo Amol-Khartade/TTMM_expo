@@ -24,7 +24,9 @@ import {
   GroupCard,
   CreateGroupDialog,
   FloatingActionButton,
+  EmptyStateCard,
 } from '@/components';
+import { formatCurrency } from '@/utils/formatters';
 
 export default function GroupsTabScreen() {
   const insets = useSafeAreaInsets();
@@ -164,7 +166,7 @@ export default function GroupsTabScreen() {
                   </Paragraph>
                 </XStack>
                 <Text fontWeight="900" fontSize="$6" color={isDark ? '#4ade80' : '#16a34a'}>
-                  {selectedCurrency} 0.00
+                  {formatCurrency(0, selectedCurrency)}
                 </Text>
               </YStack>
 
@@ -186,7 +188,7 @@ export default function GroupsTabScreen() {
                   </Paragraph>
                 </XStack>
                 <Text fontWeight="900" fontSize="$6" color={isDark ? '#fb7185' : '#e11d48'}>
-                  {selectedCurrency} 0.00
+                  {formatCurrency(0, selectedCurrency)}
                 </Text>
               </YStack>
             </XStack>
@@ -231,46 +233,14 @@ export default function GroupsTabScreen() {
               />
             }
             ListEmptyComponent={
-              <MotiView
-                from={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', damping: 18 }}
-              >
-                <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
-                  <YStack alignItems="center" justifyContent="center">
-                    <YStack
-                      backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
-                      width={68}
-                      height={68}
-                      borderRadius={24}
-                      borderWidth={1}
-                      borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
-                      alignItems="center"
-                      justifyContent="center"
-                      mb="$3"
-                    >
-                      <Users size={32} color={isDark ? '#38bdf8' : '#0284c7'} />
-                    </YStack>
-                    <Text fontWeight="800" fontSize="$5" textAlign="center" color="$color">
-                      No groups yet
-                    </Text>
-                    <Paragraph size="$2" color="$gray10" textAlign="center" mt="$1.5" px="$2">
-                      Organize outings, weekend trips, rent & groceries with friends in one shared ledger.
-                    </Paragraph>
-                    <Button
-                      mt="$4"
-                      size="$3"
-                      borderRadius="$6"
-                      backgroundColor="$blue10"
-                      color="white"
-                      icon={<Plus size={16} color="white" />}
-                      onPress={() => setCreateModalOpen(true)}
-                    >
-                      Create First Group
-                    </Button>
-                  </YStack>
-                </GlassCard>
-              </MotiView>
+              <EmptyStateCard
+                icon={Users}
+                title="No groups yet"
+                description="Organize outings, weekend trips, rent & groceries with friends in one shared ledger."
+                actionLabel="Create First Group"
+                actionIcon={Plus}
+                onAction={() => setCreateModalOpen(true)}
+              />
             }
           />
         </YStack>
@@ -299,10 +269,5 @@ export default function GroupsTabScreen() {
 const styles = StyleSheet.create({
   heroCardMargin: {
     marginBottom: 16,
-  },
-  emptyCard: {
-    marginTop: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

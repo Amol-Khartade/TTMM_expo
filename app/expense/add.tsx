@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ScrollView, KeyboardAvoidingView, Platform, StyleSheet, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
@@ -26,7 +26,10 @@ import {
   GlassCard,
   CategorySelector,
   SplitTypeSelector,
+  UserAvatar,
+  FilterPill,
 } from '@/components';
+import { formatCurrency } from '@/utils/formatters';
 
 export default function AddExpenseModal() {
   const router = useRouter();
@@ -41,7 +44,7 @@ export default function AddExpenseModal() {
   const { data: activeGroup } = useGroupDetailsQuery(selectedGroupId || userGroups[0]?.id);
 
   const addExpenseMutation = useAddExpenseMutation();
-  const members = activeGroup?.members || [];
+  const members = useMemo(() => activeGroup?.members || [], [activeGroup?.members]);
 
   const {
     control,
@@ -268,32 +271,12 @@ export default function AddExpenseModal() {
                     const isUser = member.userId === currentUser?.id;
 
                     return (
-                      <Pressable
+                      <FilterPill
                         key={member.userId}
-                        accessibilityRole="button"
-                        accessibilityState={{ selected: isSelected }}
-                        accessibilityLabel={`Paid by ${isUser ? 'You' : member.displayName}`}
-                        onPress={() => {
-                          Haptics.selectionAsync().catch(() => {});
-                          setValue('paidBy', member.userId);
-                        }}
-                        style={[
-                          styles.memberPill,
-                          isSelected
-                            ? styles.memberPillActive
-                            : isDark
-                            ? styles.memberPillInactiveDark
-                            : styles.memberPillInactiveLight,
-                        ]}
-                      >
-                        <Text
-                          fontWeight={isSelected ? '800' : '600'}
-                          color={isSelected ? 'white' : '$gray11'}
-                          fontSize="$2"
-                        >
-                          {isUser ? 'You' : member.displayName}
-                        </Text>
-                      </Pressable>
+                        label={isUser ? 'You' : member.displayName}
+                        active={isSelected}
+                        onPress={() => setValue('paidBy', member.userId)}
+                      />
                     );
                   })}
                 </XStack>
@@ -325,20 +308,11 @@ export default function AddExpenseModal() {
                     return (
                       <XStack key={member.userId} justifyContent="space-between" alignItems="center" py="$1">
                         <XStack alignItems="center" gap="$2">
-                          <YStack
-                            width={28}
-                            height={28}
-                            borderRadius={14}
-                            backgroundColor={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'}
-                            borderWidth={1}
-                            borderColor={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(226, 232, 240, 0.85)'}
-                            alignItems="center"
-                            justifyContent="center"
-                          >
-                            <Text fontSize={11} fontWeight="800" color={isDark ? '#cbd5e1' : '$gray11'}>
-                              {member.displayName.slice(0, 1).toUpperCase()}
-                            </Text>
-                          </YStack>
+                          <UserAvatar
+                            name={member.displayName}
+                            size="xs"
+                            isCurrentUser={isUser}
+                          />
                           <Text fontWeight="700" fontSize="$3" color="$color">
                             {isUser ? 'You' : member.displayName}
                           </Text>
@@ -346,7 +320,7 @@ export default function AddExpenseModal() {
 
                         {watchSplitType === 'equal' ? (
                           <Text fontWeight="900" fontSize="$3" color={isDark ? '#38bdf8' : '#0284c7'}>
-                            {selectedCurrency} {(watchSplits[idx]?.amount || 0).toFixed(2)}
+                            {formatCurrency(watchSplits[idx]?.amount || 0, selectedCurrency)}
                           </Text>
                         ) : (
                           <Input
@@ -405,24 +379,5 @@ const styles = StyleSheet.create({
   },
   cardMargin: {
     marginBottom: 14,
-  },
-  memberPill: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    minHeight: 36,
-  },
-  memberPillActive: {
-    backgroundColor: '#0284c7',
-  },
-  memberPillInactiveLight: {
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.85)',
-  },
-  memberPillInactiveDark: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.09)',
   },
 });

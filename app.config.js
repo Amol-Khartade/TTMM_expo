@@ -46,9 +46,7 @@ export default {
     plugins: [
       'expo-router',
       'expo-font',
-      'expo-image',
       'expo-status-bar',
-      'expo-web-browser',
       [
         'expo-splash-screen',
         {

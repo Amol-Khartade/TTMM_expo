@@ -5,36 +5,25 @@ import {
   ScrollView,
   Pressable,
   StyleSheet,
-  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  YStack,
-  XStack,
-  Text,
-  Paragraph,
-  Input,
-} from 'tamagui';
-import {
-  AlertCircle,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Sparkles,
-  Sun,
-  Moon,
-  ArrowRight,
-} from '@tamagui/lucide-icons';
+import { YStack, XStack, Text, Paragraph } from 'tamagui';
+import { Mail, Lock, Sparkles, Sun, Moon } from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { MotiView } from 'moti';
 import { loginSchema, LoginInput } from '@/schemas/authSchema';
 import { authService } from '@/services/authService';
 import { useAppStore } from '@/store/useAppStore';
-import { AnimatedAuthBackground, GlassCard } from '@/components';
+import {
+  AnimatedAuthBackground,
+  GlassCard,
+  AuthInputField,
+  AuthErrorBanner,
+  AuthSubmitButton,
+} from '@/components';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -42,9 +31,6 @@ export default function LoginScreen() {
   const isDark = useAppStore((state) => state.isDark);
   const toggleTheme = useAppStore((state) => state.toggleTheme);
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [emailFocused, setEmailFocused] = useState(false);
-  const [passwordFocused, setPasswordFocused] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
   const {
@@ -232,252 +218,41 @@ export default function LoginScreen() {
                 </Paragraph>
               </YStack>
 
-              {/* Form Error Banner */}
-              {authError && (
-                <MotiView
-                  from={{ opacity: 0, translateY: -6 }}
-                  animate={{ opacity: 1, translateY: 0 }}
-                  transition={{ type: 'timing', duration: 250 }}
-                >
-                  <XStack
-                    backgroundColor={isDark ? 'rgba(244, 63, 94, 0.16)' : 'rgba(225, 29, 72, 0.10)'}
-                    p="$3"
-                    borderRadius="$4"
-                    alignItems="center"
-                    gap="$2.5"
-                    mb="$3.5"
-                    borderWidth={1}
-                    borderColor={isDark ? 'rgba(244, 63, 94, 0.35)' : 'rgba(225, 29, 72, 0.22)'}
-                  >
-                    <AlertCircle size={18} color={isDark ? '#fb7185' : '#dc2626'} />
-                    <Paragraph color={isDark ? '#fb7185' : '#dc2626'} size="$2" flex={1} fontWeight="600">
-                      {authError}
-                    </Paragraph>
-                  </XStack>
-                </MotiView>
-              )}
+              {/* Form Error Banner (DRY Component) */}
+              <AuthErrorBanner error={authError} />
 
               <YStack gap="$3.5">
-                {/* Email Input Field */}
-                <YStack>
-                  <Text fontWeight="700" fontSize="$2" color="$color" mb="$1.5">
-                    Email Address
-                  </Text>
-                  <XStack
-                    alignItems="center"
-                    borderWidth={1.5}
-                    borderColor={
-                      emailFocused
-                        ? isDark
-                          ? '#38bdf8'
-                          : '#0284c7'
-                        : errors.email
-                        ? isDark
-                          ? '#fb7185'
-                          : '#dc2626'
-                        : isDark
-                        ? 'rgba(255, 255, 255, 0.12)'
-                        : 'rgba(226, 232, 240, 0.95)'
-                    }
-                    backgroundColor={
-                      isDark
-                        ? emailFocused
-                          ? 'rgba(15, 23, 42, 0.95)'
-                          : 'rgba(15, 23, 42, 0.75)'
-                        : emailFocused
-                        ? '#FFFFFF'
-                        : 'rgba(248, 250, 252, 0.95)'
-                    }
-                    borderRadius="$4"
-                    px="$3"
-                    height={50}
-                    gap="$2.5"
-                  >
-                    <Mail
-                      size={18}
-                      color={
-                        emailFocused
-                          ? isDark
-                            ? '#38bdf8'
-                            : '#0284c7'
-                          : isDark
-                          ? '#94a3b8'
-                          : '#64748b'
-                      }
-                    />
-                    <Controller
-                      control={control}
-                      name="email"
-                      render={({ field: { onChange, value } }) => (
-                        <Input
-                          flex={1}
-                          height={46}
-                          borderWidth={0}
-                          backgroundColor="transparent"
-                          padding={0}
-                          color="$color"
-                          placeholderTextColor="$gray10"
-                          fontSize="$3"
-                          keyboardType="email-address"
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          autoComplete="email"
-                          placeholder="name@example.com"
-                          value={value}
-                          onChangeText={onChange}
-                          onFocus={() => setEmailFocused(true)}
-                          onBlur={() => setEmailFocused(false)}
-                        />
-                      )}
-                    />
-                  </XStack>
-                  {errors.email && (
-                    <XStack alignItems="center" gap="$1" mt="$1.5" px="$1">
-                      <AlertCircle size={13} color={isDark ? '#fb7185' : '#dc2626'} />
-                      <Paragraph size="$1" color={isDark ? '#fb7185' : '#dc2626'} fontWeight="600">
-                        {errors.email.message}
-                      </Paragraph>
-                    </XStack>
-                  )}
-                </YStack>
+                {/* Email Input Field (DRY Component) */}
+                <AuthInputField
+                  name="email"
+                  control={control}
+                  label="Email Address"
+                  icon={Mail}
+                  placeholder="name@example.com"
+                  error={errors.email}
+                  keyboardType="email-address"
+                  autoComplete="email"
+                />
 
-                {/* Password Input Field */}
-                <YStack>
-                  <Text fontWeight="700" fontSize="$2" color="$color" mb="$1.5">
-                    Password
-                  </Text>
-                  <XStack
-                    alignItems="center"
-                    borderWidth={1.5}
-                    borderColor={
-                      passwordFocused
-                        ? isDark
-                          ? '#38bdf8'
-                          : '#0284c7'
-                        : errors.password
-                        ? isDark
-                          ? '#fb7185'
-                          : '#dc2626'
-                        : isDark
-                        ? 'rgba(255, 255, 255, 0.12)'
-                        : 'rgba(226, 232, 240, 0.95)'
-                    }
-                    backgroundColor={
-                      isDark
-                        ? passwordFocused
-                          ? 'rgba(15, 23, 42, 0.95)'
-                          : 'rgba(15, 23, 42, 0.75)'
-                        : passwordFocused
-                        ? '#FFFFFF'
-                        : 'rgba(248, 250, 252, 0.95)'
-                    }
-                    borderRadius="$4"
-                    px="$3"
-                    height={50}
-                    gap="$2.5"
-                  >
-                    <Lock
-                      size={18}
-                      color={
-                        passwordFocused
-                          ? isDark
-                            ? '#38bdf8'
-                            : '#0284c7'
-                          : isDark
-                          ? '#94a3b8'
-                          : '#64748b'
-                      }
-                    />
-                    <Controller
-                      control={control}
-                      name="password"
-                      render={({ field: { onChange, value } }) => (
-                        <Input
-                          flex={1}
-                          height={46}
-                          borderWidth={0}
-                          backgroundColor="transparent"
-                          padding={0}
-                          color="$color"
-                          placeholderTextColor="$gray10"
-                          fontSize="$3"
-                          secureTextEntry={!showPassword}
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          placeholder="Enter your password"
-                          value={value}
-                          onChangeText={onChange}
-                          onFocus={() => setPasswordFocused(true)}
-                          onBlur={() => setPasswordFocused(false)}
-                        />
-                      )}
-                    />
-                    <Pressable
-                      onPress={() => {
-                        Haptics.selectionAsync().catch(() => {});
-                        setShowPassword(!showPassword);
-                      }}
-                      hitSlop={10}
-                      accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-                      accessibilityRole="button"
-                    >
-                      {showPassword ? (
-                        <EyeOff size={18} color={isDark ? '#94a3b8' : '#64748b'} />
-                      ) : (
-                        <Eye size={18} color={isDark ? '#94a3b8' : '#64748b'} />
-                      )}
-                    </Pressable>
-                  </XStack>
-                  {errors.password && (
-                    <XStack alignItems="center" gap="$1" mt="$1.5" px="$1">
-                      <AlertCircle size={13} color={isDark ? '#fb7185' : '#dc2626'} />
-                      <Paragraph size="$1" color={isDark ? '#fb7185' : '#dc2626'} fontWeight="600">
-                        {errors.password.message}
-                      </Paragraph>
-                    </XStack>
-                  )}
-                </YStack>
+                {/* Password Input Field (DRY Component) */}
+                <AuthInputField
+                  name="password"
+                  control={control}
+                  label="Password"
+                  icon={Lock}
+                  placeholder="Enter your password"
+                  error={errors.password}
+                  isPassword
+                />
 
-                {/* Submit Primary CTA Button */}
-                <Pressable
+                {/* Submit Primary CTA Button (DRY Component) */}
+                <AuthSubmitButton
+                  isSubmitting={isSubmitting}
+                  label="Sign In"
+                  loadingLabel="Signing In..."
                   onPress={handleSubmit(onSubmit as any)}
-                  disabled={isSubmitting}
-                  style={({ pressed }) => [
-                    styles.primaryButton,
-                    {
-                      backgroundColor: isDark ? '#38bdf8' : '#0284c7',
-                      shadowColor: isDark ? '#38bdf8' : '#0284c7',
-                    },
-                    pressed && { transform: [{ scale: 0.98 }], opacity: 0.9 },
-                    isSubmitting && { opacity: 0.7 },
-                  ]}
-                  accessibilityRole="button"
                   accessibilityLabel="Sign in button"
-                >
-                  {isSubmitting ? (
-                    <XStack alignItems="center" gap="$2">
-                      <ActivityIndicator size="small" color={isDark ? '#0B0F17' : '#FFFFFF'} />
-                      <Text
-                        fontWeight="800"
-                        fontSize="$3"
-                        color={isDark ? '#0B0F17' : '#FFFFFF'}
-                      >
-                        Signing In...
-                      </Text>
-                    </XStack>
-                  ) : (
-                    <XStack alignItems="center" gap="$2">
-                      <Text
-                        fontWeight="800"
-                        fontSize="$3"
-                        color={isDark ? '#0B0F17' : '#FFFFFF'}
-                      >
-                        Sign In
-                      </Text>
-                      <ArrowRight size={18} color={isDark ? '#0B0F17' : '#FFFFFF'} />
-                    </XStack>
-                  )}
-                </Pressable>
+                />
 
                 {/* Quick Demo Autofill Helper */}
                 <XStack justifyContent="center" alignItems="center" mt="$1">
@@ -560,17 +335,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-  },
-  primaryButton: {
-    height: 52,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
   },
   demoButton: {
     paddingHorizontal: 12,

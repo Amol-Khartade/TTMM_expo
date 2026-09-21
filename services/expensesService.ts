@@ -13,6 +13,7 @@ import {
 import { Expense, Balance, Settlement, Group } from '@/types';
 import { notificationService } from './notificationService';
 import { sanitizeForFirestore } from '@/utils/firestoreUtils';
+import { sortByDateDesc } from '@/utils/formatters';
 
 class ExpensesService {
   async addExpense(expenseData: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<Expense> {
@@ -66,14 +67,7 @@ class ExpensesService {
         ...d.data(),
       })) as Expense[];
 
-      // Sort in-memory to avoid requiring a composite index in Firestore
-      expenses.sort((a, b) => {
-        const timeA = a.date ? new Date(a.date).getTime() : 0;
-        const timeB = b.date ? new Date(b.date).getTime() : 0;
-        return timeB - timeA;
-      });
-
-      return expenses;
+      return sortByDateDesc(expenses, (e) => e.date);
     } catch (error: any) {
       throw new Error(error.message);
     }
@@ -170,13 +164,7 @@ class ExpensesService {
         ...d.data(),
       })) as Settlement[];
 
-      settlements.sort((a, b) => {
-        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return timeB - timeA;
-      });
-
-      return settlements;
+      return sortByDateDesc(settlements, (s) => s.createdAt);
     } catch (error: any) {
       throw new Error(error.message);
     }
