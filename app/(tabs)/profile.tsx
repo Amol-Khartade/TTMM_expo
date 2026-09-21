@@ -1,9 +1,8 @@
 import React from 'react';
 import { StyleSheet, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { YStack, XStack, Text, Button, H2, Paragraph, Switch, Separator } from 'tamagui';
+import { YStack, XStack, Text, H2, Paragraph, Switch, Separator } from 'tamagui';
 import {
-  User,
   Moon,
   Shield,
   LogOut,
@@ -11,7 +10,6 @@ import {
   CheckCircle2,
   Sparkles,
   Smartphone,
-  ChevronRight,
 } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

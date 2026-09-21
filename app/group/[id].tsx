@@ -58,7 +58,7 @@ export default function GroupDetailScreen() {
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [addMemberError, setAddMemberError] = useState<string | null>(null);
 
-  const { data: group, isLoading: groupLoading } = useGroupDetailsQuery(id);
+  const { data: group } = useGroupDetailsQuery(id);
   const { data: expenses = [], isLoading: expLoading, refetch } = useGroupExpensesQuery(id);
   const { data: settlements = [] } = useGroupSettlementsQuery(id);
   const addMemberMutation = useAddMemberMutation();
@@ -93,7 +93,7 @@ export default function GroupDetailScreen() {
         };
       })
       .sort((a, b) => b.netBalance - a.netBalance);
-  }, [group?.members, balancesMap]);
+  }, [group, balancesMap]);
 
   const memberName = (userId: string) => {
     const member = group?.members.find((m: GroupMember) => m.userId === userId);

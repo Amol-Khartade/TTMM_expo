@@ -1,6 +1,7 @@
 // UI Primitives
 export * from './ui/GlassCard';
 export * from './ui/AmbientBackground';
+export * from './ui/AnimatedAuthBackground';
 export * from './ui/CategoryBadge';
 export * from './ui/SegmentedTabControl';
 export * from './ui/FloatingActionButton';

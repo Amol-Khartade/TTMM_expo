@@ -5,7 +5,7 @@ import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TamaguiProvider, Theme } from 'tamagui';
 import { QueryClientProvider } from '@tanstack/react-query';
-import tamaguiConfig from '@/tamagui.config';
+import { tamaguiConfig } from '@/tamagui.config';
 import { queryClient } from '@/services/queryClient';
 import { useAppStore } from '@/store/useAppStore';
 import { authService } from '@/services/authService';

@@ -5,12 +5,11 @@ import {
   YStack,
   XStack,
   Text,
-  Button,
   H2,
   Paragraph,
   Input,
 } from 'tamagui';
-import { X, Check, QrCode, Banknote, ArrowRight, Wallet } from '@tamagui/lucide-icons';
+import { X, Check, QrCode, Banknote, ArrowRight } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -228,7 +227,7 @@ export default function SettleUpModal() {
               {paymentMethod === 'upi' && (
                 <YStack gap="$1.5">
                   <Paragraph size="$1" color="$gray10" fontWeight="700">
-                    Receiver's UPI VPA ID (GPay / PhonePe / Paytm):
+                    Receiver&apos;s UPI VPA ID (GPay / PhonePe / Paytm):
                   </Paragraph>
                   <Input
                     placeholder="e.g. friend@okaxis or 9876543210@paytm"
