@@ -16,18 +16,92 @@ export interface CategoryMeta {
   id: string;
   label: string;
   icon: React.ComponentType<any>;
+  lightBg: string;
+  darkBg: string;
+  lightColor: string;
+  darkColor: string;
   bg: string;
   color: string;
 }
 
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'food', label: 'Food', icon: Utensils, bg: '#ffedd5', color: '#ea580c' },
-  { id: 'drinks', label: 'Drinks & Cafe', icon: Coffee, bg: '#fef3c7', color: '#d97706' },
-  { id: 'transport', label: 'Transport', icon: Car, bg: '#e0f2fe', color: '#0284c7' },
-  { id: 'groceries', label: 'Groceries', icon: ShoppingBag, bg: '#f3e8ff', color: '#9333ea' },
-  { id: 'entertainment', label: 'Movies & Fun', icon: Film, bg: '#fce7f3', color: '#db2777' },
-  { id: 'utilities', label: 'Bills & Utilities', icon: Zap, bg: '#ecfdf5', color: '#059669' },
-  { id: 'other', label: 'General', icon: Receipt, bg: '#f1f5f9', color: '#475569' },
+  {
+    id: 'food',
+    label: 'Food',
+    icon: Utensils,
+    lightBg: 'rgba(249, 115, 22, 0.12)',
+    darkBg: 'rgba(249, 115, 22, 0.20)',
+    lightColor: '#ea580c',
+    darkColor: '#fb923c',
+    bg: 'rgba(249, 115, 22, 0.12)',
+    color: '#ea580c',
+  },
+  {
+    id: 'drinks',
+    label: 'Drinks & Cafe',
+    icon: Coffee,
+    lightBg: 'rgba(245, 158, 11, 0.12)',
+    darkBg: 'rgba(245, 158, 11, 0.20)',
+    lightColor: '#d97706',
+    darkColor: '#fbbf24',
+    bg: 'rgba(245, 158, 11, 0.12)',
+    color: '#d97706',
+  },
+  {
+    id: 'transport',
+    label: 'Transport',
+    icon: Car,
+    lightBg: 'rgba(2, 132, 199, 0.12)',
+    darkBg: 'rgba(56, 189, 248, 0.20)',
+    lightColor: '#0284c7',
+    darkColor: '#38bdf8',
+    bg: 'rgba(2, 132, 199, 0.12)',
+    color: '#0284c7',
+  },
+  {
+    id: 'groceries',
+    label: 'Groceries',
+    icon: ShoppingBag,
+    lightBg: 'rgba(147, 51, 234, 0.12)',
+    darkBg: 'rgba(168, 85, 247, 0.20)',
+    lightColor: '#9333ea',
+    darkColor: '#c084fc',
+    bg: 'rgba(147, 51, 234, 0.12)',
+    color: '#9333ea',
+  },
+  {
+    id: 'entertainment',
+    label: 'Movies & Fun',
+    icon: Film,
+    lightBg: 'rgba(225, 29, 72, 0.12)',
+    darkBg: 'rgba(244, 63, 94, 0.20)',
+    lightColor: '#e11d48',
+    darkColor: '#fb7185',
+    bg: 'rgba(225, 29, 72, 0.12)',
+    color: '#e11d48',
+  },
+  {
+    id: 'utilities',
+    label: 'Bills & Utilities',
+    icon: Zap,
+    lightBg: 'rgba(16, 185, 129, 0.12)',
+    darkBg: 'rgba(52, 211, 153, 0.20)',
+    lightColor: '#059669',
+    darkColor: '#34d399',
+    bg: 'rgba(16, 185, 129, 0.12)',
+    color: '#059669',
+  },
+  {
+    id: 'other',
+    label: 'General',
+    icon: Receipt,
+    lightBg: 'rgba(100, 116, 139, 0.12)',
+    darkBg: 'rgba(148, 163, 184, 0.18)',
+    lightColor: '#475569',
+    darkColor: '#94a3b8',
+    bg: 'rgba(100, 116, 139, 0.12)',
+    color: '#475569',
+  },
 ];
 
 export const getCategoryMeta = (category?: string): CategoryMeta => {
@@ -106,6 +180,10 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
   const meta = getCategoryMeta(category);
   const Icon = meta.icon;
 
+  const bg = isDark ? meta.darkBg : meta.lightBg;
+  const iconColor = isDark ? meta.darkColor : meta.lightColor;
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)';
+
   const dimensions = {
     sm: { box: 32, icon: 16, radius: 10, fontSize: 10 },
     md: { box: 44, icon: 20, radius: 14, fontSize: 12 },
@@ -118,11 +196,13 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
         width={dimensions.box}
         height={dimensions.box}
         borderRadius={dimensions.radius}
-        backgroundColor={meta.bg}
+        backgroundColor={bg}
+        borderWidth={1}
+        borderColor={borderColor}
         alignItems="center"
         justifyContent="center"
       >
-        <Icon size={dimensions.icon} color={meta.color} />
+        <Icon size={dimensions.icon} color={iconColor} />
       </YStack>
       {showLabel && (
         <XStack

@@ -3,12 +3,10 @@ import { StyleSheet, Pressable } from 'react-native';
 import { YStack, XStack, Text, H2, Paragraph } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import {
-  DollarSign,
   CheckCircle2,
   Receipt,
   UserPlus,
   Clock,
-  Filter,
 } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -75,13 +73,29 @@ export default function ActivityTabScreen() {
   const getActivityMeta = (type: ActivityItem['type']) => {
     switch (type) {
       case 'expense':
-        return { icon: Receipt, bg: '#e0f2fe', color: '#0284c7' };
+        return {
+          icon: Receipt,
+          bg: isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)',
+          color: isDark ? '#38bdf8' : '#0284c7',
+        };
       case 'settlement':
-        return { icon: CheckCircle2, bg: '#dcfce7', color: '#16a34a' };
+        return {
+          icon: CheckCircle2,
+          bg: isDark ? 'rgba(52, 211, 153, 0.18)' : 'rgba(22, 163, 74, 0.10)',
+          color: isDark ? '#34d399' : '#16a34a',
+        };
       case 'member':
-        return { icon: UserPlus, bg: '#ede9fe', color: '#7c3aed' };
+        return {
+          icon: UserPlus,
+          bg: isDark ? 'rgba(167, 139, 250, 0.18)' : 'rgba(124, 58, 237, 0.10)',
+          color: isDark ? '#a78bfa' : '#7c3aed',
+        };
       default:
-        return { icon: Clock, bg: '#f1f5f9', color: '#64748b' };
+        return {
+          icon: Clock,
+          bg: isDark ? 'rgba(148, 163, 184, 0.18)' : 'rgba(100, 116, 139, 0.10)',
+          color: isDark ? '#94a3b8' : '#64748b',
+        };
     }
   };
 
@@ -105,6 +119,8 @@ export default function ActivityTabScreen() {
               width={44}
               height={44}
               borderRadius={14}
+              borderWidth={1}
+              borderColor={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'}
               alignItems="center"
               justifyContent="center"
             >
@@ -200,15 +216,17 @@ export default function ActivityTabScreen() {
                 <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
                   <YStack alignItems="center" justifyContent="center">
                     <YStack
-                      backgroundColor={isDark ? 'rgba(2, 132, 199, 0.2)' : '#e0f2fe'}
+                      backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                       width={64}
                       height={64}
                       borderRadius={22}
+                      borderWidth={1}
+                      borderColor={isDark ? 'rgba(56, 189, 248, 0.3)' : 'rgba(2, 132, 199, 0.2)'}
                       alignItems="center"
                       justifyContent="center"
                       mb="$3"
                     >
-                      <Clock size={32} color="#0284c7" />
+                      <Clock size={32} color={isDark ? '#38bdf8' : '#0284c7'} />
                     </YStack>
                     <Text fontWeight="800" fontSize="$5" color="$color" textAlign="center">
                       No activity recorded
@@ -240,18 +258,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 20,
+    minHeight: 36,
   },
   filterPillActive: {
     backgroundColor: '#0284c7',
   },
   filterPillInactiveLight: {
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
+    borderColor: 'rgba(226, 232, 240, 0.85)',
   },
   filterPillInactiveDark: {
-    backgroundColor: 'rgba(30, 41, 59, 0.6)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.09)',
   },
 });

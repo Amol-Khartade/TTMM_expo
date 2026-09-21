@@ -23,6 +23,8 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
       {CATEGORIES.map((cat) => {
         const isSelected = selectedCategory === cat.id;
         const CatIcon = cat.icon;
+        const activeBg = isDark ? cat.darkBg : cat.lightBg;
+        const activeColor = isDark ? cat.darkColor : cat.lightColor;
 
         return (
           <Pressable
@@ -37,17 +39,20 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
             style={[
               styles.categoryPill,
               isSelected
-                ? { backgroundColor: cat.bg, borderColor: cat.color }
+                ? { backgroundColor: activeBg, borderColor: activeColor }
                 : isDark
                 ? styles.categoryPillInactiveDark
                 : styles.categoryPillInactiveLight,
             ]}
           >
-            <CatIcon size={14} color={isSelected ? cat.color : '#94a3b8'} />
+            <CatIcon
+              size={14}
+              color={isSelected ? activeColor : isDark ? '#94a3b8' : '#64748b'}
+            />
             <Text
               fontSize={12}
               fontWeight={isSelected ? '800' : '600'}
-              color={isSelected ? cat.color : '$gray10'}
+              color={isSelected ? activeColor : '$gray10'}
             >
               {cat.label}
             </Text>
@@ -70,11 +75,11 @@ const styles = StyleSheet.create({
     minHeight: 36,
   },
   categoryPillInactiveLight: {
-    backgroundColor: 'rgba(0,0,0,0.04)',
-    borderColor: 'rgba(0,0,0,0.06)',
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    borderColor: 'rgba(226, 232, 240, 0.85)',
   },
   categoryPillInactiveDark: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.09)',
   },
 });

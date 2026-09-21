@@ -95,7 +95,10 @@ export default function SettleUpModal() {
             }}
             style={({ pressed }) => [
               styles.iconButton,
-              { backgroundColor: isDark ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.8)' },
+              {
+                backgroundColor: isDark ? 'rgba(27, 37, 61, 0.85)' : 'rgba(255, 255, 255, 0.90)',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(226, 232, 240, 0.90)',
+              },
               pressed && { transform: [{ scale: 0.92 }] },
             ]}
           >
@@ -121,7 +124,7 @@ export default function SettleUpModal() {
                 Settlement Amount
               </Paragraph>
               <XStack alignItems="center" gap="$2" my="$2">
-                <Text fontSize="$8" fontWeight="900" color="#0284c7">
+                <Text fontSize="$8" fontWeight="900" color={isDark ? '#38bdf8' : '#0284c7'}>
                   {selectedCurrency}
                 </Text>
                 <Input
@@ -140,19 +143,21 @@ export default function SettleUpModal() {
 
               {/* Transfer Direction Indicator */}
               <XStack
-                backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : '$gray3'}
+                backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
                 px="$3.5"
                 py="$2"
                 borderRadius={16}
+                borderWidth={1}
+                borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 0.85)'}
                 alignItems="center"
                 gap="$2.5"
                 mt="$2"
               >
-                <Text fontWeight="800" fontSize="$3" color="#e11d48">
+                <Text fontWeight="800" fontSize="$3" color={isDark ? '#fb7185' : '#e11d48'}>
                   {fromMember?.displayName || 'Payer'}
                 </Text>
                 <ArrowRight size={16} color="#64748b" />
-                <Text fontWeight="800" fontSize="$3" color="#16a34a">
+                <Text fontWeight="800" fontSize="$3" color={isDark ? '#4ade80' : '#16a34a'}>
                   {toMember?.displayName || 'Receiver'}
                 </Text>
               </XStack>
@@ -231,8 +236,9 @@ export default function SettleUpModal() {
                     onChangeText={setPayeeUpiId}
                     borderRadius="$4"
                     borderWidth={1}
-                    borderColor={isDark ? 'rgba(255,255,255,0.12)' : '$gray6'}
-                    backgroundColor={isDark ? '#0f172a' : '$gray2'}
+                    borderColor={isDark ? 'rgba(255,255,255,0.12)' : 'rgba(226, 232, 240, 0.90)'}
+                    backgroundColor={isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(248, 250, 252, 0.95)'}
+                    color="$color"
                   />
                 </YStack>
               )}
@@ -307,14 +313,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#0284c7',
   },
   methodInactiveLight: {
-    backgroundColor: 'rgba(0,0,0,0.04)',
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
+    borderColor: 'rgba(226, 232, 240, 0.85)',
   },
   methodInactiveDark: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.09)',
   },
   primaryActionButton: {
     flexDirection: 'row',

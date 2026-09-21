@@ -14,7 +14,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#0284c7',
+        tabBarActiveTintColor: isDark ? '#38bdf8' : '#0284c7',
         tabBarInactiveTintColor: isDark ? '#94a3b8' : '#64748b',
         tabBarLabelStyle: {
           fontWeight: '600',
@@ -30,14 +30,21 @@ export default function TabLayout() {
           borderRadius: 30,
           borderTopWidth: 0,
           borderWidth: 1,
-          borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.7)',
-          backgroundColor: isDark ? 'rgba(15, 23, 42, 0.72)' : 'rgba(255, 255, 255, 0.75)',
+          borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(226, 232, 240, 0.90)',
+          backgroundColor:
+            Platform.OS === 'android'
+              ? isDark
+                ? '#131B2E'
+                : '#FFFFFF'
+              : isDark
+              ? 'rgba(19, 27, 46, 0.85)'
+              : 'rgba(255, 255, 255, 0.90)',
           overflow: 'hidden',
           ...Platform.select({
             ios: {
-              shadowColor: isDark ? '#000' : '#64748b',
-              shadowOffset: { width: 0, height: 10 },
-              shadowOpacity: isDark ? 0.45 : 0.1,
+              shadowColor: isDark ? '#000000' : '#0f172a',
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: isDark ? 0.45 : 0.08,
               shadowRadius: 18,
             },
             android: {
@@ -48,17 +55,18 @@ export default function TabLayout() {
               WebkitBackdropFilter: 'blur(20px)',
               boxShadow: isDark
                 ? '0 10px 30px rgba(0, 0, 0, 0.5)'
-                : '0 10px 25px rgba(100, 116, 139, 0.12)',
+                : '0 8px 25px rgba(15, 23, 42, 0.08)',
             } as any,
           }),
         },
-        tabBarBackground: () => (
-          <BlurView
-            intensity={75}
-            tint={isDark ? 'dark' : 'light'}
-            style={StyleSheet.absoluteFill}
-          />
-        ),
+        tabBarBackground: () =>
+          Platform.OS === 'ios' ? (
+            <BlurView
+              intensity={65}
+              tint={isDark ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : null,
       }}
       screenListeners={{
         tabPress: () => {

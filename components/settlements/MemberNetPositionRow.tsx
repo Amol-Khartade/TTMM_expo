@@ -32,10 +32,22 @@ export const MemberNetPositionRow: React.FC<MemberNetPositionRowProps> = ({
           borderRadius={17}
           backgroundColor={
             isCurrentUser
-              ? '$blue5'
+              ? isDark
+                ? 'rgba(56, 189, 248, 0.18)'
+                : 'rgba(2, 132, 199, 0.10)'
               : isDark
-              ? 'rgba(255,255,255,0.08)'
-              : '$gray4'
+              ? 'rgba(255, 255, 255, 0.08)'
+              : 'rgba(0, 0, 0, 0.04)'
+          }
+          borderWidth={1}
+          borderColor={
+            isCurrentUser
+              ? isDark
+                ? 'rgba(56, 189, 248, 0.30)'
+                : 'rgba(2, 132, 199, 0.20)'
+              : isDark
+              ? 'rgba(255, 255, 255, 0.08)'
+              : 'rgba(226, 232, 240, 0.85)'
           }
           alignItems="center"
           justifyContent="center"
@@ -43,7 +55,15 @@ export const MemberNetPositionRow: React.FC<MemberNetPositionRowProps> = ({
           <Text
             fontSize={12}
             fontWeight="800"
-            color={isCurrentUser ? '#0284c7' : '$gray11'}
+            color={
+              isCurrentUser
+                ? isDark
+                  ? '#38bdf8'
+                  : '#0284c7'
+                : isDark
+                ? '#cbd5e1'
+                : '$gray11'
+            }
           >
             {initials}
           </Text>
@@ -60,11 +80,11 @@ export const MemberNetPositionRow: React.FC<MemberNetPositionRowProps> = ({
 
       <YStack alignItems="flex-end">
         {netBalance > 0.01 ? (
-          <Text fontWeight="900" fontSize="$3" color="#16a34a">
+          <Text fontWeight="900" fontSize="$3" color={isDark ? '#4ade80' : '#16a34a'}>
             +{currency} {netBalance.toFixed(2)}
           </Text>
         ) : netBalance < -0.01 ? (
-          <Text fontWeight="900" fontSize="$3" color="#e11d48">
+          <Text fontWeight="900" fontSize="$3" color={isDark ? '#fb7185' : '#e11d48'}>
             -{currency} {Math.abs(netBalance).toFixed(2)}
           </Text>
         ) : (

@@ -56,16 +56,16 @@ export default function FriendsTabScreen() {
         <XStack justifyContent="space-between" alignItems="center">
           <XStack gap="$3" alignItems="center" flex={1}>
             <YStack
-              backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : '#e0f2fe'}
+              backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
               width={44}
               height={44}
               borderRadius={14}
               alignItems="center"
               justifyContent="center"
               borderWidth={1}
-              borderColor={isDark ? 'rgba(56, 189, 248, 0.3)' : '#bae6fd'}
+              borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
             >
-              <Text fontSize={14} fontWeight="800" color="#0284c7">
+              <Text fontSize={14} fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'}>
                 {initials}
               </Text>
             </YStack>
@@ -154,15 +154,17 @@ export default function FriendsTabScreen() {
                 <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
                   <YStack alignItems="center" justifyContent="center">
                     <YStack
-                      backgroundColor={isDark ? 'rgba(2, 132, 199, 0.2)' : '#e0f2fe'}
+                      backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                       width={64}
                       height={64}
                       borderRadius={22}
+                      borderWidth={1}
+                      borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
                       alignItems="center"
                       justifyContent="center"
                       mb="$3"
                     >
-                      <User size={32} color="#0284c7" />
+                      <User size={32} color={isDark ? '#38bdf8' : '#0284c7'} />
                     </YStack>
                     <Text mt="$1" fontWeight="800" fontSize="$5" color="$color" textAlign="center">
                       No direct friends added yet
@@ -201,16 +203,16 @@ export default function FriendsTabScreen() {
               p="$4"
               width="90%"
               borderRadius={24}
-              backgroundColor={isDark ? '#1e293b' : '#ffffff'}
+              backgroundColor={isDark ? '#131B2E' : '#ffffff'}
               borderWidth={1}
-              borderColor={isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}
+              borderColor={isDark ? 'rgba(255,255,255,0.10)' : 'rgba(226, 232, 240, 0.90)'}
               elevation={8}
             >
               <Dialog.Title fontWeight="800" fontSize="$5" color="$color">
                 Add Friend
               </Dialog.Title>
               <Dialog.Description size="$2" color="$gray10" mb="$3.5">
-                Enter your friend's registered email to link your accounts.
+                Enter your friend&apos;s registered email to link your accounts.
               </Dialog.Description>
 
               <Input
@@ -222,8 +224,9 @@ export default function FriendsTabScreen() {
                 mb="$4"
                 borderRadius="$4"
                 borderWidth={1}
-                borderColor="$gray6"
-                backgroundColor={isDark ? '#0f172a' : '$gray2'}
+                borderColor={isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(226, 232, 240, 0.90)'}
+                backgroundColor={isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(248, 250, 252, 0.95)'}
+                color="$color"
               />
 
               <XStack justifyContent="flex-end" gap="$2.5">

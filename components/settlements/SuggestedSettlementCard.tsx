@@ -4,6 +4,7 @@ import { XStack, YStack, Text, Button } from 'tamagui';
 import { ArrowRight, Wallet } from '@tamagui/lucide-icons';
 import * as Haptics from 'expo-haptics';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { useAppStore } from '@/store/useAppStore';
 
 export interface SuggestedSettlementCardProps {
   fromName: string;
@@ -28,6 +29,10 @@ export const SuggestedSettlementCard: React.FC<SuggestedSettlementCardProps> = (
   onSettlePress,
   style,
 }) => {
+  const isDark = useAppStore((state) => state.isDark);
+  const oweColor = isDark ? '#fb7185' : '#e11d48';
+  const owedColor = isDark ? '#4ade80' : '#16a34a';
+
   return (
     <GlassCard
       variant="card"
@@ -41,20 +46,20 @@ export const SuggestedSettlementCard: React.FC<SuggestedSettlementCardProps> = (
         <XStack gap="$2.5" alignItems="center" flex={1}>
           <YStack flex={1}>
             <XStack alignItems="center" gap="$1.5">
-              <Text fontWeight="800" fontSize="$4" color={isPayer ? '#e11d48' : '$color'}>
+              <Text fontWeight="800" fontSize="$4" color={isPayer ? oweColor : '$color'}>
                 {fromName}
               </Text>
               <ArrowRight size={14} color="#64748b" />
-              <Text fontWeight="800" fontSize="$4" color={isReceiver ? '#16a34a' : '$color'}>
+              <Text fontWeight="800" fontSize="$4" color={isReceiver ? owedColor : '$color'}>
                 {toName}
               </Text>
             </XStack>
             {isPayer ? (
-              <Text fontSize="$1" fontWeight="700" color="#e11d48" mt="$0.5">
+              <Text fontSize="$1" fontWeight="700" color={oweColor} mt="$0.5">
                 You owe this payment
               </Text>
             ) : isReceiver ? (
-              <Text fontSize="$1" fontWeight="700" color="#16a34a" mt="$0.5">
+              <Text fontSize="$1" fontWeight="700" color={owedColor} mt="$0.5">
                 Owes you
               </Text>
             ) : null}
@@ -62,7 +67,7 @@ export const SuggestedSettlementCard: React.FC<SuggestedSettlementCardProps> = (
         </XStack>
 
         <YStack alignItems="flex-end" gap="$1">
-          <Text fontWeight="900" fontSize="$5" color="#16a34a">
+          <Text fontWeight="900" fontSize="$5" color={owedColor}>
             {currency} {amount.toFixed(2)}
           </Text>
           <Button

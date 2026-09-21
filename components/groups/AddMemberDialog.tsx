@@ -44,16 +44,16 @@ export const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
         <Dialog.Overlay
           key="overlay"
           opacity={0.65}
-          backgroundColor="rgba(0,0,0,0.6)"
+          backgroundColor="rgba(0,0,0,0.65)"
         />
         <Dialog.Content
           key="content"
           p="$4"
           width="90%"
           borderRadius={24}
-          backgroundColor={isDark ? '#1e293b' : '#ffffff'}
+          backgroundColor={isDark ? '#131B2E' : '#FFFFFF'}
           borderWidth={1}
-          borderColor={isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}
+          borderColor={isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(226, 232, 240, 0.90)'}
           elevation={8}
         >
           <Dialog.Title fontWeight="800" fontSize="$5" color="$color">
@@ -65,17 +65,17 @@ export const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
 
           {error && (
             <XStack
-              backgroundColor={isDark ? 'rgba(159, 18, 57, 0.25)' : '#fee2e2'}
+              backgroundColor={isDark ? 'rgba(244, 63, 94, 0.16)' : 'rgba(225, 29, 72, 0.10)'}
               p="$2.5"
               borderRadius="$3"
               alignItems="center"
               gap="$2"
               mb="$3"
               borderWidth={1}
-              borderColor={isDark ? 'rgba(244, 63, 94, 0.3)' : '#fca5a5'}
+              borderColor={isDark ? 'rgba(244, 63, 94, 0.30)' : 'rgba(225, 29, 72, 0.22)'}
             >
-              <AlertCircle size={16} color="#dc2626" />
-              <Paragraph color="#dc2626" size="$2" flex={1}>
+              <AlertCircle size={16} color={isDark ? '#fb7185' : '#e11d48'} />
+              <Paragraph color={isDark ? '#fb7185' : '#e11d48'} size="$2" flex={1}>
                 {error}
               </Paragraph>
             </XStack>
@@ -90,8 +90,9 @@ export const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
             mb="$4"
             borderRadius="$4"
             borderWidth={1}
-            borderColor="$gray6"
-            backgroundColor={isDark ? '#0f172a' : '$gray2'}
+            borderColor={isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(226, 232, 240, 0.90)'}
+            backgroundColor={isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(248, 250, 252, 0.95)'}
+            color="$color"
           />
 
           <XStack justifyContent="flex-end" gap="$2.5">

@@ -32,10 +32,17 @@ export default function RootLayout() {
       <TamaguiProvider config={tamaguiConfig} defaultTheme={isDark ? 'dark' : 'light'}>
         <Theme name={isDark ? 'dark' : 'light'}>
           <QueryClientProvider client={queryClient}>
-            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+            <StatusBar
+              barStyle={isDark ? 'light-content' : 'dark-content'}
+              backgroundColor="transparent"
+              translucent
+            />
             <Stack
               screenOptions={{
                 headerShown: false,
+                contentStyle: {
+                  backgroundColor: isDark ? '#0B0F17' : '#F6F8FC',
+                },
               }}
             >
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

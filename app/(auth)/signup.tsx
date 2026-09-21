@@ -16,10 +16,12 @@ import { UserPlus, AlertCircle } from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { signUpSchema, SignUpInput } from '@/schemas/authSchema';
 import { authService } from '@/services/authService';
+import { useAppStore } from '@/store/useAppStore';
 
 export default function SignUpScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const isDark = useAppStore((state) => state.isDark);
 
   const {
     control,
@@ -59,18 +61,27 @@ export default function SignUpScreen() {
         </Paragraph>
       </YStack>
 
-      <Card borderWidth={1} borderColor="#e2e8f0" borderRadius="$5" p="$4" mb="$4">
+      <Card
+        borderWidth={1}
+        borderColor={isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(226, 232, 240, 0.90)'}
+        backgroundColor={isDark ? '#131B2E' : '#FFFFFF'}
+        borderRadius="$5"
+        p="$4"
+        mb="$4"
+      >
         {authError && (
           <XStack
-            backgroundColor="#fee2e2"
+            backgroundColor={isDark ? 'rgba(244, 63, 94, 0.16)' : 'rgba(225, 29, 72, 0.10)'}
             p="$3"
             borderRadius="$3"
             alignItems="center"
             gap="$2"
             mb="$3"
+            borderWidth={1}
+            borderColor={isDark ? 'rgba(244, 63, 94, 0.30)' : 'rgba(225, 29, 72, 0.22)'}
           >
-            <AlertCircle size={18} color="#dc2626" />
-            <Paragraph color="#dc2626" size="$2" flex={1}>
+            <AlertCircle size={18} color={isDark ? '#fb7185' : '#dc2626'} />
+            <Paragraph color={isDark ? '#fb7185' : '#dc2626'} size="$2" flex={1}>
               {authError}
             </Paragraph>
           </XStack>

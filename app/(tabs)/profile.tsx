@@ -91,13 +91,13 @@ export default function ProfileTabScreen() {
                   width={56}
                   height={56}
                   borderRadius={20}
-                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.2)' : '#e0f2fe'}
+                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                   alignItems="center"
                   justifyContent="center"
-                  borderWidth={2}
-                  borderColor={isDark ? 'rgba(56, 189, 248, 0.4)' : '#bae6fd'}
+                  borderWidth={1.5}
+                  borderColor={isDark ? 'rgba(56, 189, 248, 0.35)' : 'rgba(2, 132, 199, 0.20)'}
                 >
-                  <Text fontSize={20} fontWeight="900" color="#0284c7">
+                  <Text fontSize={20} fontWeight="900" color={isDark ? '#38bdf8' : '#0284c7'}>
                     {initials}
                   </Text>
                 </YStack>
@@ -113,14 +113,16 @@ export default function ProfileTabScreen() {
                     {currentUser?.email || 'user@ttmm.app'}
                   </Paragraph>
                   <XStack
-                    backgroundColor={isDark ? 'rgba(2, 132, 199, 0.2)' : '#e0f2fe'}
+                    backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                     px="$2"
                     py="$0.5"
                     borderRadius="$3"
                     alignSelf="flex-start"
                     mt="$1.5"
+                    borderWidth={1}
+                    borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
                   >
-                    <Text fontSize={10} fontWeight="800" color="#0284c7" textTransform="uppercase">
+                    <Text fontSize={10} fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} textTransform="uppercase">
                       Free Unlimited Tier
                     </Text>
                   </XStack>
@@ -151,11 +153,11 @@ export default function ProfileTabScreen() {
               <XStack justifyContent="space-between" alignItems="center" py="$2">
                 <XStack gap="$3" alignItems="center">
                   <YStack
-                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : '$gray4'}
+                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
                     p="$2"
                     borderRadius="$3"
                   >
-                    <Moon size={18} color="#64748b" />
+                    <Moon size={18} color={isDark ? '#94a3b8' : '#64748b'} />
                   </YStack>
                   <YStack>
                     <Text fontWeight="700" fontSize="$3" color="$color">
@@ -177,17 +179,17 @@ export default function ProfileTabScreen() {
                 </Switch>
               </XStack>
 
-              <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'} />
+              <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 0.85)'} />
 
               {/* Biometrics */}
               <XStack justifyContent="space-between" alignItems="center" py="$2">
                 <XStack gap="$3" alignItems="center">
                   <YStack
-                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : '$gray4'}
+                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
                     p="$2"
                     borderRadius="$3"
                   >
-                    <Shield size={18} color="#64748b" />
+                    <Shield size={18} color={isDark ? '#94a3b8' : '#64748b'} />
                   </YStack>
                   <YStack>
                     <Text fontWeight="700" fontSize="$3" color="$color">
@@ -209,17 +211,17 @@ export default function ProfileTabScreen() {
                 </Switch>
               </XStack>
 
-              <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'} />
+              <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 0.85)'} />
 
               {/* Currency */}
               <XStack justifyContent="space-between" alignItems="center" py="$2">
                 <XStack gap="$3" alignItems="center">
                   <YStack
-                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : '$gray4'}
+                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
                     p="$2"
                     borderRadius="$3"
                   >
-                    <DollarSign size={18} color="#64748b" />
+                    <DollarSign size={18} color={isDark ? '#94a3b8' : '#64748b'} />
                   </YStack>
                   <YStack>
                     <Text fontWeight="700" fontSize="$3" color="$color">
@@ -231,12 +233,14 @@ export default function ProfileTabScreen() {
                   </YStack>
                 </XStack>
                 <XStack
-                  backgroundColor={isDark ? 'rgba(2, 132, 199, 0.2)' : '#e0f2fe'}
+                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                   px="$3"
                   py="$1"
                   borderRadius="$4"
+                  borderWidth={1}
+                  borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
                 >
-                  <Text fontWeight="800" color="#0284c7" fontSize="$3">
+                  <Text fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} fontSize="$3">
                     {selectedCurrency}
                   </Text>
                 </XStack>
@@ -274,7 +278,7 @@ export default function ProfileTabScreen() {
                 </Text>
               </XStack>
 
-              <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'} />
+              <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 0.85)'} />
 
               <XStack justifyContent="space-between" alignItems="center" py="$1">
                 <XStack gap="$2.5" alignItems="center">

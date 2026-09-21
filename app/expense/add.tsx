@@ -130,7 +130,10 @@ export default function AddExpenseModal() {
               }}
               style={({ pressed }) => [
                 styles.iconButton,
-                { backgroundColor: isDark ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.8)' },
+                {
+                  backgroundColor: isDark ? 'rgba(27, 37, 61, 0.85)' : 'rgba(255, 255, 255, 0.90)',
+                  borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(226, 232, 240, 0.90)',
+                },
                 pressed && { transform: [{ scale: 0.92 }] },
               ]}
             >
@@ -175,7 +178,7 @@ export default function AddExpenseModal() {
                   Amount
                 </Paragraph>
                 <XStack alignItems="center" gap="$2">
-                  <Text fontSize="$8" fontWeight="900" color="#0284c7">
+                  <Text fontSize="$8" fontWeight="900" color={isDark ? '#38bdf8' : '#0284c7'}>
                     {selectedCurrency}
                   </Text>
                   <Controller
@@ -207,7 +210,7 @@ export default function AddExpenseModal() {
                   </XStack>
                 )}
 
-                <Separator my="$3" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'} />
+                <Separator my="$3" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 0.85)'} />
 
                 <Paragraph size="$1" color="$gray10" fontWeight="800" textTransform="uppercase" letterSpacing={0.8} mb="$1.5">
                   Description
@@ -223,8 +226,9 @@ export default function AddExpenseModal() {
                       onChangeText={onChange}
                       borderRadius="$4"
                       borderWidth={1}
-                      borderColor={isDark ? 'rgba(255,255,255,0.12)' : '$gray6'}
-                      backgroundColor={isDark ? 'rgba(15, 23, 42, 0.6)' : '$gray2'}
+                      borderColor={isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(226, 232, 240, 0.90)'}
+                      backgroundColor={isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(248, 250, 252, 0.95)'}
+                      color="$color"
                     />
                   )}
                 />
@@ -325,11 +329,13 @@ export default function AddExpenseModal() {
                             width={28}
                             height={28}
                             borderRadius={14}
-                            backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : '$gray4'}
+                            backgroundColor={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'}
+                            borderWidth={1}
+                            borderColor={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(226, 232, 240, 0.85)'}
                             alignItems="center"
                             justifyContent="center"
                           >
-                            <Text fontSize={11} fontWeight="800" color="$gray11">
+                            <Text fontSize={11} fontWeight="800" color={isDark ? '#cbd5e1' : '$gray11'}>
                               {member.displayName.slice(0, 1).toUpperCase()}
                             </Text>
                           </YStack>
@@ -339,7 +345,7 @@ export default function AddExpenseModal() {
                         </XStack>
 
                         {watchSplitType === 'equal' ? (
-                          <Text fontWeight="900" fontSize="$3" color="#0284c7">
+                          <Text fontWeight="900" fontSize="$3" color={isDark ? '#38bdf8' : '#0284c7'}>
                             {selectedCurrency} {(watchSplits[idx]?.amount || 0).toFixed(2)}
                           </Text>
                         ) : (
@@ -350,7 +356,10 @@ export default function AddExpenseModal() {
                             textAlign="right"
                             fontWeight="700"
                             borderRadius="$3"
-                            backgroundColor={isDark ? '#0f172a' : '$gray2'}
+                            borderWidth={1}
+                            borderColor={isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(226, 232, 240, 0.90)'}
+                            backgroundColor={isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(248, 250, 252, 0.95)'}
+                            color="$color"
                             value={String(watchSplits[idx]?.amount || '')}
                             onChangeText={(val) => {
                               const updated = [...watchSplits];
@@ -407,13 +416,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#0284c7',
   },
   memberPillInactiveLight: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
+    borderColor: 'rgba(226, 232, 240, 0.85)',
   },
   memberPillInactiveDark: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.09)',
   },
 });

@@ -36,7 +36,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   style,
   contentStyle,
   borderRadius = 22,
-  intensity = 60,
+  intensity = 50,
   tint,
   onPress,
   animate = false,
@@ -52,43 +52,57 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   const isDark = useAppStore((state) => state.isDark);
   const activeTint = tint || (isDark ? 'dark' : 'light');
 
-  // Glass background tints
+  // Modern glass & card background colors
   const getBackgroundColor = () => {
     if (isDark) {
       switch (variant) {
         case 'elevated':
-          return 'rgba(30, 41, 59, 0.72)';
+          return Platform.OS === 'android' ? '#1B253D' : 'rgba(27, 37, 61, 0.88)';
         case 'glow':
-          return 'rgba(30, 41, 59, 0.60)';
+          return Platform.OS === 'android' ? '#172136' : 'rgba(23, 33, 54, 0.82)';
         case 'subtle':
-          return 'rgba(15, 23, 42, 0.40)';
+          return Platform.OS === 'android' ? '#101726' : 'rgba(16, 23, 38, 0.65)';
         default:
-          return 'rgba(15, 23, 42, 0.62)';
+          return Platform.OS === 'android' ? '#131B2E' : 'rgba(19, 27, 46, 0.82)';
       }
     } else {
       switch (variant) {
         case 'elevated':
-          return 'rgba(255, 255, 255, 0.82)';
+          return Platform.OS === 'android' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.95)';
         case 'glow':
-          return 'rgba(255, 255, 255, 0.72)';
+          return Platform.OS === 'android' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.90)';
         case 'subtle':
-          return 'rgba(255, 255, 255, 0.45)';
+          return Platform.OS === 'android' ? '#F8FAFC' : 'rgba(248, 250, 252, 0.82)';
         default:
-          return 'rgba(255, 255, 255, 0.68)';
+          return Platform.OS === 'android' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.88)';
       }
     }
   };
 
-  // Glass border sheen
+  // Modern border sheen - avoiding stark white borders in light mode
   const getBorderColor = () => {
-    if (isDark) {
-      return variant === 'glow' && glowColor
-        ? glowColor
-        : 'rgba(255, 255, 255, 0.12)';
+    if (variant === 'glow' && glowColor) {
+      return glowColor;
     }
-    return variant === 'glow' && glowColor
-      ? glowColor
-      : 'rgba(255, 255, 255, 0.60)';
+    if (isDark) {
+      switch (variant) {
+        case 'elevated':
+          return 'rgba(255, 255, 255, 0.12)';
+        case 'subtle':
+          return 'rgba(255, 255, 255, 0.06)';
+        default:
+          return 'rgba(255, 255, 255, 0.09)';
+      }
+    } else {
+      switch (variant) {
+        case 'elevated':
+          return 'rgba(226, 232, 240, 0.95)';
+        case 'subtle':
+          return 'rgba(226, 232, 240, 0.60)';
+        default:
+          return 'rgba(226, 232, 240, 0.85)';
+      }
+    }
   };
 
   const handlePress = () => {
@@ -105,23 +119,24 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     overflow: 'hidden',
     borderWidth,
     borderColor: getBorderColor(),
-    backgroundColor: 'transparent',
+    backgroundColor: Platform.OS === 'android' ? getBackgroundColor() : 'transparent',
     ...Platform.select({
       ios: {
-        shadowColor: isDark ? '#000000' : '#64748b',
-        shadowOffset: { width: 0, height: variant === 'elevated' ? 8 : 4 },
-        shadowOpacity: isDark ? 0.35 : 0.08,
-        shadowRadius: variant === 'elevated' ? 16 : 8,
+        shadowColor: isDark ? '#000000' : '#0f172a',
+        shadowOffset: { width: 0, height: variant === 'elevated' ? 6 : 3 },
+        shadowOpacity: isDark ? 0.35 : 0.06,
+        shadowRadius: variant === 'elevated' ? 14 : 7,
       },
       android: {
         elevation: variant === 'elevated' ? 4 : 2,
       },
       web: {
-        backdropFilter: `blur(${intensity / 4}px)`,
-        WebkitBackdropFilter: `blur(${intensity / 4}px)`,
+        backdropFilter: `blur(${Math.round(intensity / 3)}px)`,
+        WebkitBackdropFilter: `blur(${Math.round(intensity / 3)}px)`,
+        backgroundColor: getBackgroundColor(),
         boxShadow: isDark
-          ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
-          : '0 8px 24px 0 rgba(148, 163, 184, 0.12)',
+          ? '0 8px 28px 0 rgba(0, 0, 0, 0.40)'
+          : '0 6px 20px 0 rgba(15, 23, 42, 0.05)',
       } as any,
     }),
   };
@@ -133,19 +148,32 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     ...(py !== undefined ? { paddingVertical: py } : {}),
   };
 
+  // Only render BlurView on iOS where it is natively hardware-accelerated and smooth.
+  // On Android and Web, BlurView without native target leads to white box fallbacks.
   const innerContent = (
     <View style={StyleSheet.absoluteFill}>
-      <BlurView
-        intensity={intensity}
-        tint={activeTint}
-        style={StyleSheet.absoluteFill}
-      />
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          { backgroundColor: getBackgroundColor() },
-        ]}
-      />
+      {Platform.OS === 'ios' ? (
+        <>
+          <BlurView
+            intensity={intensity}
+            tint={activeTint}
+            style={StyleSheet.absoluteFill}
+          />
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: getBackgroundColor() },
+            ]}
+          />
+        </>
+      ) : Platform.OS === 'web' ? null : (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: getBackgroundColor() },
+          ]}
+        />
+      )}
     </View>
   );
 

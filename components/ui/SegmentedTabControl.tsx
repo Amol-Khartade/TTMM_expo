@@ -54,7 +54,15 @@ export const SegmentedTabControl: React.FC<SegmentedTabControlProps> = ({
               {Icon && (
                 <Icon
                   size={16}
-                  color={isActive ? '#0284c7' : '#64748b'}
+                  color={
+                    isActive
+                      ? isDark
+                        ? '#38bdf8'
+                        : '#0284c7'
+                      : isDark
+                      ? '#94a3b8'
+                      : '#64748b'
+                  }
                   strokeWidth={isActive ? 2.5 : 2}
                 />
               )}
@@ -89,21 +97,23 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   tabActiveLight: {
-    backgroundColor: '#ffffff',
-    shadowColor: '#64748b',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
+    shadowColor: '#0f172a',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.06,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
   tabActiveDark: {
-    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+    backgroundColor: '#1E293B',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.35,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
 });

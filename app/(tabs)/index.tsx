@@ -64,14 +64,14 @@ export default function GroupsTabScreen() {
                 TTMM
               </H2>
               <YStack
-                backgroundColor="$blue4"
+                backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                 px="$2"
                 py="$0.5"
                 borderRadius="$3"
                 borderWidth={1}
-                borderColor="$blue6"
+                borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
               >
-                <Text fontSize={10} fontWeight="800" color="$blue11" textTransform="uppercase">
+                <Text fontSize={10} fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} textTransform="uppercase">
                   PRO
                 </Text>
               </YStack>
@@ -115,11 +115,11 @@ export default function GroupsTabScreen() {
             <XStack justifyContent="space-between" alignItems="center" mb="$3">
               <XStack alignItems="center" gap="$2">
                 <YStack
-                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.1)'}
+                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                   p="$1.5"
                   borderRadius="$3"
                 >
-                  <Wallet size={16} color="#0284c7" />
+                  <Wallet size={16} color={isDark ? '#38bdf8' : '#0284c7'} />
                 </YStack>
                 <Text
                   fontSize={12}
@@ -149,21 +149,21 @@ export default function GroupsTabScreen() {
               {/* You are owed */}
               <YStack
                 flex={1}
-                backgroundColor={isDark ? 'rgba(22, 101, 52, 0.18)' : 'rgba(220, 252, 231, 0.65)'}
+                backgroundColor={isDark ? 'rgba(34, 197, 94, 0.14)' : 'rgba(22, 163, 74, 0.08)'}
                 p="$3"
                 borderRadius={16}
                 borderWidth={1}
-                borderColor={isDark ? 'rgba(34, 197, 94, 0.25)' : 'rgba(187, 247, 208, 0.8)'}
+                borderColor={isDark ? 'rgba(34, 197, 94, 0.25)' : 'rgba(22, 163, 74, 0.20)'}
               >
                 <XStack alignItems="center" gap="$1.5" mb="$1">
-                  <YStack backgroundColor="#22c55e" p="$1" borderRadius="$2">
+                  <YStack backgroundColor={isDark ? '#16a34a' : '#22c55e'} p="$1" borderRadius="$2">
                     <ArrowDownLeft size={12} color="white" />
                   </YStack>
                   <Paragraph size="$1" fontWeight="700" color="$gray10">
                     You are owed
                   </Paragraph>
                 </XStack>
-                <Text fontWeight="900" fontSize="$6" color="#16a34a">
+                <Text fontWeight="900" fontSize="$6" color={isDark ? '#4ade80' : '#16a34a'}>
                   {selectedCurrency} 0.00
                 </Text>
               </YStack>
@@ -171,11 +171,11 @@ export default function GroupsTabScreen() {
               {/* You owe */}
               <YStack
                 flex={1}
-                backgroundColor={isDark ? 'rgba(159, 18, 57, 0.18)' : 'rgba(255, 228, 230, 0.65)'}
+                backgroundColor={isDark ? 'rgba(244, 63, 94, 0.14)' : 'rgba(225, 29, 72, 0.08)'}
                 p="$3"
                 borderRadius={16}
                 borderWidth={1}
-                borderColor={isDark ? 'rgba(244, 63, 94, 0.25)' : 'rgba(254, 205, 211, 0.8)'}
+                borderColor={isDark ? 'rgba(244, 63, 94, 0.25)' : 'rgba(225, 29, 72, 0.20)'}
               >
                 <XStack alignItems="center" gap="$1.5" mb="$1">
                   <YStack backgroundColor="#f43f5e" p="$1" borderRadius="$2">
@@ -185,7 +185,7 @@ export default function GroupsTabScreen() {
                     You owe
                   </Paragraph>
                 </XStack>
-                <Text fontWeight="900" fontSize="$6" color="#e11d48">
+                <Text fontWeight="900" fontSize="$6" color={isDark ? '#fb7185' : '#e11d48'}>
                   {selectedCurrency} 0.00
                 </Text>
               </YStack>
@@ -239,15 +239,17 @@ export default function GroupsTabScreen() {
                 <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
                   <YStack alignItems="center" justifyContent="center">
                     <YStack
-                      backgroundColor={isDark ? 'rgba(2, 132, 199, 0.2)' : '#e0f2fe'}
+                      backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                       width={68}
                       height={68}
                       borderRadius={24}
+                      borderWidth={1}
+                      borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
                       alignItems="center"
                       justifyContent="center"
                       mb="$3"
                     >
-                      <Users size={32} color="#0284c7" />
+                      <Users size={32} color={isDark ? '#38bdf8' : '#0284c7'} />
                     </YStack>
                     <Text fontWeight="800" fontSize="$5" textAlign="center" color="$color">
                       No groups yet

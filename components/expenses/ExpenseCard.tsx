@@ -57,11 +57,11 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
               Paid by <Text fontWeight="700" color="$color">{payerName}</Text> • {formatExpenseDate(expense.date)}
             </Paragraph>
             {isPayer ? (
-              <Text fontSize="$1" color="#16a34a" fontWeight="700" mt="$0.5">
+              <Text fontSize="$1" color={isDark ? '#4ade80' : '#16a34a'} fontWeight="700" mt="$0.5">
                 You paid {expense.currency} {expense.amount.toFixed(2)}
               </Text>
             ) : userSplit ? (
-              <Text fontSize="$1" color="#e11d48" fontWeight="700" mt="$0.5">
+              <Text fontSize="$1" color={isDark ? '#fb7185' : '#e11d48'} fontWeight="700" mt="$0.5">
                 Your share: {expense.currency} {userSplit.amount.toFixed(2)}
               </Text>
             ) : null}
@@ -74,10 +74,12 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
           </Text>
           {expense.category ? (
             <XStack
-              backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
+              backgroundColor={isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)'}
               px="$2"
               py="$0.5"
               borderRadius="$3"
+              borderWidth={1}
+              borderColor={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(226, 232, 240, 0.85)'}
               mt="$1.5"
             >
               <Text fontSize={10} fontWeight="700" color="$gray10" textTransform="capitalize">

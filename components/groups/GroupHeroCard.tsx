@@ -63,7 +63,7 @@ export const GroupHeroCard: React.FC<GroupHeroCardProps> = ({
             </Paragraph>
             {userNetBalance > 0.01 ? (
               <XStack
-                backgroundColor={isDark ? 'rgba(22, 101, 52, 0.3)' : '#dcfce7'}
+                backgroundColor={isDark ? 'rgba(34, 197, 94, 0.16)' : 'rgba(22, 163, 74, 0.10)'}
                 px="$2.5"
                 py="$1.5"
                 borderRadius="$4"
@@ -71,16 +71,16 @@ export const GroupHeroCard: React.FC<GroupHeroCardProps> = ({
                 gap="$1.5"
                 mt="$1"
                 borderWidth={1}
-                borderColor={isDark ? 'rgba(34, 197, 94, 0.3)' : '#bbf7d0'}
+                borderColor={isDark ? 'rgba(34, 197, 94, 0.30)' : 'rgba(22, 163, 74, 0.22)'}
               >
-                <ArrowUpRight size={16} color="#15803d" />
-                <Text fontWeight="900" fontSize="$4" color="#15803d">
+                <ArrowUpRight size={16} color={isDark ? '#4ade80' : '#16a34a'} />
+                <Text fontWeight="900" fontSize="$4" color={isDark ? '#4ade80' : '#16a34a'}>
                   +{currency} {userNetBalance.toFixed(2)}
                 </Text>
               </XStack>
             ) : userNetBalance < -0.01 ? (
               <XStack
-                backgroundColor={isDark ? 'rgba(159, 18, 57, 0.3)' : '#ffe4e6'}
+                backgroundColor={isDark ? 'rgba(244, 63, 94, 0.16)' : 'rgba(225, 29, 72, 0.10)'}
                 px="$2.5"
                 py="$1.5"
                 borderRadius="$4"
@@ -88,22 +88,24 @@ export const GroupHeroCard: React.FC<GroupHeroCardProps> = ({
                 gap="$1.5"
                 mt="$1"
                 borderWidth={1}
-                borderColor={isDark ? 'rgba(244, 63, 94, 0.3)' : '#fecdd3'}
+                borderColor={isDark ? 'rgba(244, 63, 94, 0.30)' : 'rgba(225, 29, 72, 0.22)'}
               >
-                <ArrowDownLeft size={16} color="#be123c" />
-                <Text fontWeight="900" fontSize="$4" color="#be123c">
+                <ArrowDownLeft size={16} color={isDark ? '#fb7185' : '#e11d48'} />
+                <Text fontWeight="900" fontSize="$4" color={isDark ? '#fb7185' : '#e11d48'}>
                   -{currency} {Math.abs(userNetBalance).toFixed(2)}
                 </Text>
               </XStack>
             ) : (
               <XStack
-                backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : '$gray3'}
+                backgroundColor={isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)'}
                 px="$2.5"
                 py="$1.5"
                 borderRadius="$4"
                 alignItems="center"
                 gap="$1.5"
                 mt="$1"
+                borderWidth={1}
+                borderColor={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(226, 232, 240, 0.85)'}
               >
                 <CheckCircle2 size={16} color="#16a34a" />
                 <Text fontWeight="800" fontSize="$3" color="$gray11">

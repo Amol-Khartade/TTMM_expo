@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { XStack, Button, Dialog, Input, Text } from 'tamagui';
-import * as Haptics from 'expo-haptics';
 import { useAppStore } from '@/store/useAppStore';
 
 export interface CreateGroupDialogProps {
@@ -43,16 +42,16 @@ export const CreateGroupDialog: React.FC<CreateGroupDialogProps> = ({
         <Dialog.Overlay
           key="overlay"
           opacity={0.65}
-          backgroundColor="rgba(0,0,0,0.6)"
+          backgroundColor="rgba(0,0,0,0.65)"
         />
         <Dialog.Content
           key="content"
           p="$4"
           width="90%"
           borderRadius={24}
-          backgroundColor={isDark ? '#1e293b' : '#ffffff'}
+          backgroundColor={isDark ? '#131B2E' : '#FFFFFF'}
           borderWidth={1}
-          borderColor={isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}
+          borderColor={isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(226, 232, 240, 0.90)'}
           elevation={8}
         >
           <Dialog.Title fontWeight="800" fontSize="$5" color="$color">
@@ -69,8 +68,9 @@ export const CreateGroupDialog: React.FC<CreateGroupDialogProps> = ({
             mb="$3"
             borderRadius="$4"
             borderWidth={1}
-            borderColor="$gray6"
-            backgroundColor={isDark ? '#0f172a' : '$gray2'}
+            borderColor={isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(226, 232, 240, 0.90)'}
+            backgroundColor={isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(248, 250, 252, 0.95)'}
+            color="$color"
           />
           <Input
             placeholder="Description (Optional)"
@@ -79,8 +79,9 @@ export const CreateGroupDialog: React.FC<CreateGroupDialogProps> = ({
             mb="$4"
             borderRadius="$4"
             borderWidth={1}
-            borderColor="$gray6"
-            backgroundColor={isDark ? '#0f172a' : '$gray2'}
+            borderColor={isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(226, 232, 240, 0.90)'}
+            backgroundColor={isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(248, 250, 252, 0.95)'}
+            color="$color"
           />
 
           <XStack justifyContent="flex-end" gap="$2.5">

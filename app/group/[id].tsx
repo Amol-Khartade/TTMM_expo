@@ -130,7 +130,10 @@ export default function GroupDetailScreen() {
               }}
               style={({ pressed }) => [
                 styles.navBackButton,
-                { backgroundColor: isDark ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.8)' },
+                {
+                  backgroundColor: isDark ? 'rgba(27, 37, 61, 0.85)' : 'rgba(255, 255, 255, 0.90)',
+                  borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(226, 232, 240, 0.90)',
+                },
                 pressed && { transform: [{ scale: 0.92 }] },
               ]}
             >
@@ -152,17 +155,17 @@ export default function GroupDetailScreen() {
           <Button
             size="$3"
             borderRadius="$6"
-            backgroundColor={isDark ? 'rgba(2, 132, 199, 0.2)' : '#e0f2fe'}
-            icon={<UserPlus size={16} color="#0284c7" />}
+            backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
+            icon={<UserPlus size={16} color={isDark ? '#38bdf8' : '#0284c7'} />}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
               setAddMemberOpen(true);
             }}
             pressStyle={{ opacity: 0.8, scale: 0.96 }}
             borderWidth={1}
-            borderColor={isDark ? 'rgba(2, 132, 199, 0.35)' : 'rgba(186, 230, 253, 0.8)'}
+            borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
           >
-            <Text fontWeight="800" color="#0284c7" fontSize="$2">
+            <Text fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} fontSize="$2">
               + Member
             </Text>
           </Button>
@@ -216,15 +219,17 @@ export default function GroupDetailScreen() {
                   <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
                     <YStack alignItems="center" justifyContent="center">
                       <YStack
-                        backgroundColor={isDark ? 'rgba(2, 132, 199, 0.2)' : '#e0f2fe'}
+                        backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
                         width={64}
                         height={64}
                         borderRadius={22}
+                        borderWidth={1}
+                        borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
                         alignItems="center"
                         justifyContent="center"
                         mb="$3"
                       >
-                        <DollarSign size={32} color="#0284c7" />
+                        <DollarSign size={32} color={isDark ? '#38bdf8' : '#0284c7'} />
                       </YStack>
                       <Text fontWeight="800" fontSize="$5" color="$color">
                         No expenses yet
@@ -260,8 +265,14 @@ export default function GroupDetailScreen() {
             <GlassCard variant="card" borderRadius={20} p={14} style={styles.cardSpacing}>
               <XStack justifyContent="space-between" alignItems="center">
                 <XStack gap="$2.5" alignItems="center" flex={1}>
-                  <YStack backgroundColor="$blue5" p="$2" borderRadius="$3">
-                    <Sparkles size={18} color="#0284c7" />
+                  <YStack
+                    backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
+                    p="$2"
+                    borderRadius="$3"
+                    borderWidth={1}
+                    borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
+                  >
+                    <Sparkles size={18} color={isDark ? '#38bdf8' : '#0284c7'} />
                   </YStack>
                   <YStack flex={1}>
                     <Text fontWeight="800" fontSize="$3" color="$color">
@@ -367,17 +378,19 @@ export default function GroupDetailScreen() {
                   <GlassCard variant="card" borderRadius={24} p={28} style={styles.emptyCard}>
                     <YStack alignItems="center" justifyContent="center">
                       <YStack
-                        backgroundColor={isDark ? 'rgba(34, 197, 94, 0.2)' : '#dcfce7'}
+                        backgroundColor={isDark ? 'rgba(34, 197, 94, 0.16)' : 'rgba(22, 163, 74, 0.10)'}
                         width={64}
                         height={64}
                         borderRadius={22}
+                        borderWidth={1}
+                        borderColor={isDark ? 'rgba(34, 197, 94, 0.30)' : 'rgba(22, 163, 74, 0.22)'}
                         alignItems="center"
                         justifyContent="center"
                         mb="$3"
                       >
-                        <CheckCircle2 size={32} color="#16a34a" />
+                        <CheckCircle2 size={32} color={isDark ? '#4ade80' : '#16a34a'} />
                       </YStack>
-                      <Text mt="$2" fontWeight="900" fontSize="$5" color="#16a34a">
+                      <Text mt="$2" fontWeight="900" fontSize="$5" color={isDark ? '#4ade80' : '#16a34a'}>
                         All Settled Up!
                       </Text>
                       <Paragraph size="$2" color="$gray10" textAlign="center" mt="$1" px="$2">
