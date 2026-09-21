@@ -109,8 +109,22 @@ export default function AddExpenseModal() {
     if (receipt.date) {
       setValue('date', receipt.date, { shouldValidate: true, shouldDirty: true });
     }
-    if (receipt.notes) {
-      setValue('notes', receipt.notes, { shouldDirty: true });
+    let noteText = receipt.notes || '';
+    if (receipt.paymentDetails?.isPaymentScreenshot) {
+      const parts: string[] = [];
+      if (receipt.paymentDetails.appNameFormatted) {
+        parts.push(`Paid via ${receipt.paymentDetails.appNameFormatted}`);
+      }
+      if (receipt.paymentDetails.receiverUpiId) {
+        parts.push(`To: ${receipt.paymentDetails.receiverUpiId}`);
+      }
+      if (receipt.paymentDetails.utrNumber) {
+        parts.push(`UTR: ${receipt.paymentDetails.utrNumber}`);
+      }
+      noteText = parts.length > 0 ? parts.join(' • ') : noteText;
+    }
+    if (noteText) {
+      setValue('notes', noteText, { shouldDirty: true });
     }
   };
 

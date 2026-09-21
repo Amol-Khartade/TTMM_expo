@@ -3,7 +3,7 @@ import { Platform, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
-import { Users, User, Clock, Settings } from '@tamagui/lucide-icons';
+import { Users, User, Clock, Settings, Wallet } from '@tamagui/lucide-icons';
 import { useAppStore } from '@/store/useAppStore';
 
 export default function TabLayout() {
@@ -91,6 +91,15 @@ export default function TabLayout() {
           title: 'Friends',
           tabBarIcon: ({ color, focused }) => (
             <User color={color as any} size={focused ? 24 : 22} strokeWidth={focused ? 2.5 : 2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="spends"
+        options={{
+          title: 'Spends',
+          tabBarIcon: ({ color, focused }) => (
+            <Wallet color={color as any} size={focused ? 24 : 22} strokeWidth={focused ? 2.5 : 2} />
           ),
         }}
       />

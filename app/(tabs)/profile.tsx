@@ -10,11 +10,13 @@ import {
   CheckCircle2,
   Sparkles,
   Smartphone,
+  Wallet,
 } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useAppStore } from '@/store/useAppStore';
+import { useFinanceStore } from '@/store/useFinanceStore';
 import { authService } from '@/services/authService';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -30,6 +32,10 @@ export default function ProfileTabScreen() {
   const biometricLockEnabled = useAppStore((state) => state.biometricLockEnabled);
   const setBiometricLockEnabled = useAppStore((state) => state.setBiometricLockEnabled);
   const selectedCurrency = useAppStore((state) => state.selectedCurrency);
+
+  const budgetAlertsEnabled = useFinanceStore((state) => state.budgetAlertsEnabled);
+  const setBudgetAlertsEnabled = useFinanceStore((state) => state.setBudgetAlertsEnabled);
+  const monthlyBudget = useFinanceStore((state) => state.monthlyBudget);
   const setCurrentUser = useAppStore((state) => state.setCurrentUser);
 
   const handleSignOut = () => {
@@ -226,6 +232,91 @@ export default function ProfileTabScreen() {
                     {selectedCurrency}
                   </Text>
                 </XStack>
+              </XStack>
+            </GlassCard>
+          </MotiView>
+
+          {/* Financial Preferences Card */}
+          <MotiView
+            from={{ opacity: 0, translateY: 6 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'spring', damping: 18, delay: 80 }}
+          >
+            <GlassCard variant="card" borderRadius={22} p={16}>
+              <Text
+                fontWeight="800"
+                fontSize="$2"
+                color="$gray10"
+                mb="$3"
+                textTransform="uppercase"
+                letterSpacing={0.8}
+              >
+                Financial Settings
+              </Text>
+
+              {/* Budget Limit */}
+              <XStack justifyContent="space-between" alignItems="center" py="$2">
+                <XStack gap="$3" alignItems="center">
+                  <YStack
+                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
+                    p="$2"
+                    borderRadius="$3"
+                  >
+                    <Wallet size={18} color={isDark ? '#94a3b8' : '#64748b'} />
+                  </YStack>
+                  <YStack>
+                    <Text fontWeight="700" fontSize="$3" color="$color">
+                      Monthly Budget
+                    </Text>
+                    <Paragraph size="$1" color="$gray10">
+                      Manage limits
+                    </Paragraph>
+                  </YStack>
+                </XStack>
+                <XStack
+                  backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
+                  px="$3"
+                  py="$1"
+                  borderRadius="$4"
+                  borderWidth={1}
+                  borderColor={isDark ? 'rgba(56, 189, 248, 0.30)' : 'rgba(2, 132, 199, 0.20)'}
+                >
+                  <Text fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'} fontSize="$3">
+                    {selectedCurrency} {monthlyBudget}
+                  </Text>
+                </XStack>
+              </XStack>
+
+              <Separator my="$2" borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 0.85)'} />
+
+              {/* Budget Alerts */}
+              <XStack justifyContent="space-between" alignItems="center" py="$2">
+                <XStack gap="$3" alignItems="center">
+                  <YStack
+                    backgroundColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
+                    p="$2"
+                    borderRadius="$3"
+                  >
+                    <DollarSign size={18} color={isDark ? '#94a3b8' : '#64748b'} />
+                  </YStack>
+                  <YStack>
+                    <Text fontWeight="700" fontSize="$3" color="$color">
+                      Budget Alerts
+                    </Text>
+                    <Paragraph size="$1" color="$gray10">
+                      Notify near limits
+                    </Paragraph>
+                  </YStack>
+                </XStack>
+                <Switch
+                  checked={budgetAlertsEnabled}
+                  onCheckedChange={(val) => {
+                    Haptics.selectionAsync().catch(() => {});
+                    setBudgetAlertsEnabled(val);
+                  }}
+                >
+                  <Switch.Thumb />
+                </Switch>
               </XStack>
             </GlassCard>
           </MotiView>

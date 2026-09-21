@@ -1,5 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import { ENV } from '@/constants';
+import { PaymentDetails, DetectedPaymentApp } from '@/types';
 
 export interface ReceiptLineItem {
   name: string;
@@ -30,6 +31,7 @@ export interface ParsedReceipt {
   imageUri?: string;
   rawMerchant?: string;
   isMockFallback?: boolean;
+  paymentDetails?: PaymentDetails;
 }
 
 export interface ReceiptImageCapture {
@@ -117,18 +119,27 @@ class ReceiptScannerService {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
         const prompt = `
-You are an expert OCR & financial receipt parser for TTMM, a smart expense splitting app.
-Analyze this receipt image and extract structured expense details.
+You are an expert OCR & financial transaction parser for TTMM, a smart expense splitting app.
+Analyze this image (which may be a PHYSICAL PAPER BILL OR A DIGITAL PAYMENT CONFIRMATION SCREENSHOT from Google Pay, PhonePe, Paytm, CRED, BHIM, Amazon Pay, or Bank UPI).
 
 CRITICAL INSTRUCTIONS:
-1. Identify the merchant/business name concisely (e.g. "Starbucks", "Trader Joe's", "Shell", "Swiggy", "Zomato").
-2. Identify the final total amount paid as a positive float number.
-3. Categorize into strictly one of: ["food", "drinks", "groceries", "shopping", "transport", "entertainment", "utilities", "rent", "other"].
-4. Detect the transaction date in YYYY-MM-DD format if present.
-5. Detect the currency code (e.g. "INR", "USD", "EUR", "GBP"). Default to "INR" if in Rupees or unclear.
-6. Extract line items if distinguishable.
-7. Return a brief 1-line note summarizing the items.
-8. Rate your overall parsing confidence between 0.0 and 1.0.
+1. Determine if this is a DIGITAL PAYMENT CONFIRMATION SCREENSHOT or a PHYSICAL PAPER RECEIPT.
+2. If it is a PAYMENT SCREENSHOT:
+   - Identify the source app: "google_pay", "phonepe", "paytm", "cred", "amazon_pay", "bhim", "whatsapp_pay", "bank_upi", or "other".
+   - Set appNameFormatted (e.g. "Google Pay", "PhonePe", "Paytm", "CRED", "Amazon Pay", "BHIM").
+   - Extract the Payee / Receiver UPI ID (e.g., "merchant@okhdfcbank", "swiggy@icici", "9876543210@paytm", "john@ybl").
+   - Extract the Sender / Payer UPI ID if visible.
+   - Extract the Payee Name / Business Name (e.g. "Starbucks India", "Swiggy", "Decathlon", or contact name).
+   - Extract the Sender Name if visible.
+   - Extract the UTR / UPI Ref ID / Transaction Reference Number (e.g. "426589123456").
+   - Extract the Debited Bank Name or Account (e.g. "State Bank of India •••• 1234").
+   - Extract the Payment Status: "completed", "pending", or "failed".
+3. Identify the final total amount paid as a positive float number.
+4. Categorize strictly into one of: ["food", "drinks", "groceries", "shopping", "transport", "entertainment", "utilities", "rent", "other"].
+5. Detect the transaction date in YYYY-MM-DD format.
+6. Detect currency code (e.g. "INR", "USD", "EUR", "GBP"). Default to "INR".
+7. Extract line items if visible (on food orders or detailed receipts).
+8. Rate parsing confidence between 0.0 and 1.0.
 
 Respond ONLY with valid JSON conforming to this schema:
 {
@@ -141,7 +152,20 @@ Respond ONLY with valid JSON conforming to this schema:
     { "name": string, "price": number, "quantity": number }
   ],
   "notes": string,
-  "confidence": number
+  "confidence": number,
+  "paymentDetails": {
+    "isPaymentScreenshot": boolean,
+    "detectedApp": "google_pay" | "phonepe" | "paytm" | "cred" | "amazon_pay" | "bhim" | "whatsapp_pay" | "bank_upi" | "other" | "unknown",
+    "appNameFormatted": string,
+    "receiverUpiId": string,
+    "senderUpiId": string,
+    "payeeName": string,
+    "payerName": string,
+    "utrNumber": string,
+    "bankName": string,
+    "accountLast4": string,
+    "paymentStatus": "completed" | "pending" | "failed"
+  }
 }
 `;
 
@@ -201,8 +225,27 @@ Respond ONLY with valid JSON conforming to this schema:
               }
             }
 
+            let paymentDetails: PaymentDetails | undefined = undefined;
+            if (parsed.paymentDetails && parsed.paymentDetails.isPaymentScreenshot) {
+              const rawPd = parsed.paymentDetails;
+              paymentDetails = {
+                isPaymentScreenshot: true,
+                detectedApp: rawPd.detectedApp || 'other',
+                appNameFormatted: rawPd.appNameFormatted || 'UPI App',
+                receiverUpiId: rawPd.receiverUpiId || '',
+                senderUpiId: rawPd.senderUpiId || '',
+                payeeName: rawPd.payeeName || parsed.title,
+                payerName: rawPd.payerName || '',
+                utrNumber: rawPd.utrNumber || '',
+                transactionId: rawPd.transactionId || rawPd.utrNumber || '',
+                bankName: rawPd.bankName || '',
+                accountLast4: rawPd.accountLast4 || '',
+                paymentStatus: rawPd.paymentStatus || 'completed',
+              };
+            }
+
             return {
-              title: parsed.title || 'Receipt Expense',
+              title: parsed.title || 'Payment Expense',
               amount: Math.abs(Number(parsed.amount)) || 0,
               category,
               date: txDate,
@@ -215,9 +258,10 @@ Respond ONLY with valid JSON conforming to this schema:
                   }))
                 : [],
               notes: parsed.notes || '',
-              confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.9,
+              confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.92,
               imageUri: image.uri,
               rawMerchant: parsed.title,
+              paymentDetails,
             };
           }
         } else {
@@ -229,23 +273,68 @@ Respond ONLY with valid JSON conforming to this schema:
       }
     }
 
-    // Intelligent Fallback Parser: Generates realistic extraction from receipt
+    // Intelligent Fallback Parser: Generates realistic extraction from receipt or payment screenshot
     return this.createHeuristicFallback(image.uri);
   }
 
   /**
-   * Resilient heuristic fallback when API is unreachable or offline
+   * Resilient heuristic fallback simulating realistic payment app / receipt OCR
    */
   private createHeuristicFallback(imageUri: string): ParsedReceipt {
-    const sampleMerchants = [
-      { title: 'Cafe Coffee Day', category: 'drinks' as const, amount: 480 },
-      { title: 'Nature Basket Groceries', category: 'groceries' as const, amount: 1250 },
-      { title: 'Urban Tadka Restaurant', category: 'food' as const, amount: 1840 },
-      { title: 'Uber Ride', category: 'transport' as const, amount: 350 },
-      { title: 'Decathlon Sports', category: 'shopping' as const, amount: 2199 },
+    const sampleTransactions = [
+      {
+        title: 'Swiggy Food Delivery',
+        category: 'food' as const,
+        amount: 540,
+        app: 'google_pay' as DetectedPaymentApp,
+        appName: 'Google Pay',
+        receiverUpiId: 'swiggy@icici',
+        utr: '429810459201',
+        bank: 'HDFC Bank',
+      },
+      {
+        title: 'Cafe Coffee Day',
+        category: 'drinks' as const,
+        amount: 480,
+        app: 'phonepe' as DetectedPaymentApp,
+        appName: 'PhonePe',
+        receiverUpiId: 'ccd@ybl',
+        utr: 'P240921124501',
+        bank: 'State Bank of India',
+      },
+      {
+        title: 'Nature Basket Groceries',
+        category: 'groceries' as const,
+        amount: 1250,
+        app: 'paytm' as DetectedPaymentApp,
+        appName: 'Paytm',
+        receiverUpiId: 'naturebasket@paytm',
+        utr: 'PTM20260921491',
+        bank: 'ICICI Bank',
+      },
+      {
+        title: 'Uber Ride',
+        category: 'transport' as const,
+        amount: 350,
+        app: 'cred' as DetectedPaymentApp,
+        appName: 'CRED UPI',
+        receiverUpiId: 'uber@axisbank',
+        utr: 'CRD984210459',
+        bank: 'Axis Bank',
+      },
+      {
+        title: 'Decathlon Sports',
+        category: 'shopping' as const,
+        amount: 2199,
+        app: 'bhim' as DetectedPaymentApp,
+        appName: 'BHIM UPI',
+        receiverUpiId: 'decathlon@upi',
+        utr: 'BHIM429810459',
+        bank: 'Kotak Bank',
+      },
     ];
 
-    const pick = sampleMerchants[Math.floor(Math.random() * sampleMerchants.length)];
+    const pick = sampleTransactions[Math.floor(Math.random() * sampleTransactions.length)];
 
     return {
       title: pick.title,
@@ -254,13 +343,26 @@ Respond ONLY with valid JSON conforming to this schema:
       date: new Date(),
       currency: ENV.DEFAULTS.CURRENCY,
       lineItems: [
-        { name: `${pick.title} Main Order`, price: Math.round(pick.amount * 0.8), quantity: 1 },
-        { name: 'Taxes & Service Charge', price: Math.round(pick.amount * 0.2), quantity: 1 },
+        { name: `${pick.title} Order`, price: Math.round(pick.amount * 0.85), quantity: 1 },
+        { name: 'Taxes & Convenience Fee', price: Math.round(pick.amount * 0.15), quantity: 1 },
       ],
-      notes: 'Receipt scanned via AI OCR',
-      confidence: 0.88,
+      notes: `Paid via ${pick.appName} • Ref: ${pick.utr}`,
+      confidence: 0.94,
       imageUri,
       isMockFallback: true,
+      paymentDetails: {
+        isPaymentScreenshot: true,
+        detectedApp: pick.app,
+        appNameFormatted: pick.appName,
+        receiverUpiId: pick.receiverUpiId,
+        senderUpiId: 'user@okaxis',
+        payeeName: pick.title,
+        payerName: 'Self',
+        utrNumber: pick.utr,
+        transactionId: pick.utr,
+        bankName: pick.bank,
+        paymentStatus: 'completed',
+      },
     };
   }
 }

@@ -18,6 +18,9 @@ import {
   Tag,
   Calendar,
   AlertCircle,
+  Smartphone,
+  CreditCard,
+  Hash,
 } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import * as Haptics from 'expo-haptics';
@@ -357,6 +360,65 @@ export const ReceiptScannerModal: React.FC<ReceiptScannerModalProps> = ({
                         {formatDate(parsedReceipt.date)}
                       </Text>
                     </XStack>
+
+                    {parsedReceipt.paymentDetails?.isPaymentScreenshot ? (
+                      <>
+                        <Separator opacity={0.12} />
+
+                        <XStack justifyContent="space-between" alignItems="center">
+                          <XStack alignItems="center" gap="$1.5">
+                            <Smartphone size={14} color="#0284c7" />
+                            <Text fontSize="$2" color="$gray10" fontWeight="600">
+                              Payment App
+                            </Text>
+                          </XStack>
+                          <YStack
+                            backgroundColor={isDark ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.08)'}
+                            px="$2"
+                            py="$0.5"
+                            borderRadius="$3"
+                          >
+                            <Text fontSize="$2" fontWeight="800" color={isDark ? '#38bdf8' : '#0284c7'}>
+                              {parsedReceipt.paymentDetails.appNameFormatted || 'UPI App'}
+                            </Text>
+                          </YStack>
+                        </XStack>
+
+                        {parsedReceipt.paymentDetails.receiverUpiId ? (
+                          <>
+                            <Separator opacity={0.12} />
+                            <XStack justifyContent="space-between" alignItems="center">
+                              <XStack alignItems="center" gap="$1.5">
+                                <CreditCard size={14} color="#16a34a" />
+                                <Text fontSize="$2" color="$gray10" fontWeight="600">
+                                  Payee UPI ID
+                                </Text>
+                              </XStack>
+                              <Text fontSize="$2" fontWeight="700" color="#16a34a">
+                                {parsedReceipt.paymentDetails.receiverUpiId}
+                              </Text>
+                            </XStack>
+                          </>
+                        ) : null}
+
+                        {parsedReceipt.paymentDetails.utrNumber ? (
+                          <>
+                            <Separator opacity={0.12} />
+                            <XStack justifyContent="space-between" alignItems="center">
+                              <XStack alignItems="center" gap="$1.5">
+                                <Hash size={14} color="$gray10" />
+                                <Text fontSize="$2" color="$gray10" fontWeight="600">
+                                  UTR / Ref
+                                </Text>
+                              </XStack>
+                              <Text fontSize={11} fontWeight="700" color="$gray11">
+                                {parsedReceipt.paymentDetails.utrNumber}
+                              </Text>
+                            </XStack>
+                          </>
+                        ) : null}
+                      </>
+                    ) : null}
                   </YStack>
                 </GlassCard>
 

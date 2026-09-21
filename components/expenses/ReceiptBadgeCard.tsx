@@ -56,7 +56,9 @@ export const ReceiptBadgeCard: React.FC<ReceiptBadgeCardProps> = ({
               textTransform="uppercase"
               letterSpacing={0.5}
             >
-              AI Extracted Receipt
+              {receipt.paymentDetails?.isPaymentScreenshot
+                ? `${receipt.paymentDetails.appNameFormatted || 'UPI'} Payment`
+                : 'AI Extracted Receipt'}
             </Text>
           </XStack>
 
@@ -64,10 +66,24 @@ export const ReceiptBadgeCard: React.FC<ReceiptBadgeCardProps> = ({
             {receipt.title}
           </Text>
 
-          <XStack alignItems="center" gap="$2">
+          <XStack alignItems="center" gap="$2" flexWrap="wrap">
             <Text fontSize={13} fontWeight="700" color="#16a34a">
               {formatCurrency(receipt.amount, receipt.currency)}
             </Text>
+
+            {receipt.paymentDetails?.receiverUpiId ? (
+              <XStack
+                backgroundColor={isDark ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.08)'}
+                px="$1.5"
+                py="$0.5"
+                borderRadius="$2"
+              >
+                <Text fontSize={10} fontWeight="700" color={isDark ? '#38bdf8' : '#0284c7'}>
+                  UPI: {receipt.paymentDetails.receiverUpiId}
+                </Text>
+              </XStack>
+            ) : null}
+
             <XStack alignItems="center" gap="$1">
               <CheckCircle2 size={12} color="#16a34a" />
               <Text fontSize={11} color="$gray10" fontWeight="600">
