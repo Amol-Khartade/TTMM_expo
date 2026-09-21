@@ -13,18 +13,7 @@ import {
   Input,
   Separator,
 } from 'tamagui';
-import {
-  X,
-  Check,
-  AlertCircle,
-  Utensils,
-  Coffee,
-  Car,
-  ShoppingBag,
-  Film,
-  Receipt,
-  Users,
-} from '@tamagui/lucide-icons';
+import { X, Check, AlertCircle } from '@tamagui/lucide-icons';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -32,17 +21,12 @@ import { createExpenseSchema, CreateExpenseInput } from '@/schemas/expenseSchema
 import { useAddExpenseMutation } from '@/queries/useExpenses';
 import { useGroupDetailsQuery, useUserGroupsQuery } from '@/queries/useGroups';
 import { useAppStore } from '@/store/useAppStore';
-import { AmbientBackground } from '@/components/ui/AmbientBackground';
-import { GlassCard } from '@/components/ui/GlassCard';
-
-const CATEGORIES = [
-  { id: 'food', label: 'Food', icon: Utensils, bg: '#ffedd5', color: '#ea580c' },
-  { id: 'drinks', label: 'Coffee/Drinks', icon: Coffee, bg: '#fef3c7', color: '#d97706' },
-  { id: 'transport', label: 'Transport', icon: Car, bg: '#e0f2fe', color: '#0284c7' },
-  { id: 'groceries', label: 'Groceries', icon: ShoppingBag, bg: '#f3e8ff', color: '#9333ea' },
-  { id: 'entertainment', label: 'Movies', icon: Film, bg: '#fce7f3', color: '#db2777' },
-  { id: 'other', label: 'General', icon: Receipt, bg: '#f1f5f9', color: '#475569' },
-];
+import {
+  AmbientBackground,
+  GlassCard,
+  CategorySelector,
+  SplitTypeSelector,
+} from '@/components';
 
 export default function AddExpenseModal() {
   const router = useRouter();
@@ -138,6 +122,8 @@ export default function AddExpenseModal() {
           {/* Header */}
           <XStack justifyContent="space-between" alignItems="center" py="$2.5">
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Cancel"
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
                 router.back();
@@ -251,43 +237,14 @@ export default function AddExpenseModal() {
                   </XStack>
                 )}
 
-                {/* Category Pills */}
+                {/* Category Selector Subcomponent */}
                 <Paragraph size="$1" color="$gray10" fontWeight="800" textTransform="uppercase" letterSpacing={0.8} mt="$3" mb="$2">
                   Category
                 </Paragraph>
-                <XStack gap="$2" flexWrap="wrap">
-                  {CATEGORIES.map((cat) => {
-                    const isSelected = watchCategory === cat.id;
-                    const CatIcon = cat.icon;
-
-                    return (
-                      <Pressable
-                        key={cat.id}
-                        onPress={() => {
-                          Haptics.selectionAsync().catch(() => {});
-                          setValue('category', cat.id as any);
-                        }}
-                        style={[
-                          styles.categoryPill,
-                          isSelected
-                            ? { backgroundColor: cat.bg, borderColor: cat.color }
-                            : isDark
-                            ? styles.categoryPillInactiveDark
-                            : styles.categoryPillInactiveLight,
-                        ]}
-                      >
-                        <CatIcon size={14} color={isSelected ? cat.color : '#94a3b8'} />
-                        <Text
-                          fontSize={12}
-                          fontWeight={isSelected ? '800' : '600'}
-                          color={isSelected ? cat.color : '$gray10'}
-                        >
-                          {cat.label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </XStack>
+                <CategorySelector
+                  selectedCategory={watchCategory}
+                  onSelectCategory={(cat) => setValue('category', cat as any)}
+                />
               </GlassCard>
             </MotiView>
 
@@ -309,6 +266,9 @@ export default function AddExpenseModal() {
                     return (
                       <Pressable
                         key={member.userId}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: isSelected }}
+                        accessibilityLabel={`Paid by ${isUser ? 'You' : member.displayName}`}
                         onPress={() => {
                           Haptics.selectionAsync().catch(() => {});
                           setValue('paidBy', member.userId);
@@ -347,39 +307,11 @@ export default function AddExpenseModal() {
                   Split Method
                 </Text>
 
-                <XStack
-                  backgroundColor={isDark ? 'rgba(15, 23, 42, 0.6)' : '$gray3'}
-                  p="$1"
-                  borderRadius={16}
-                  mb="$3.5"
-                >
-                  {(['equal', 'exact', 'percentage', 'shares'] as const).map((type) => {
-                    const isSelected = watchSplitType === type;
-
-                    return (
-                      <Pressable
-                        key={type}
-                        onPress={() => {
-                          Haptics.selectionAsync().catch(() => {});
-                          setValue('splitType', type);
-                        }}
-                        style={[
-                          styles.splitTypeButton,
-                          isSelected && (isDark ? styles.splitActiveDark : styles.splitActiveLight),
-                        ]}
-                      >
-                        <Text
-                          fontSize={11}
-                          fontWeight={isSelected ? '800' : '600'}
-                          color={isSelected ? '$color' : '$gray10'}
-                          textTransform="uppercase"
-                        >
-                          {type}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </XStack>
+                {/* Split Type Selector Subcomponent */}
+                <SplitTypeSelector
+                  splitType={watchSplitType as any}
+                  onChangeSplitType={(type) => setValue('splitType', type)}
+                />
 
                 {/* Split Members Breakdown */}
                 <YStack gap="$2.5">
@@ -465,27 +397,11 @@ const styles = StyleSheet.create({
   cardMargin: {
     marginBottom: 14,
   },
-  categoryPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 7,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  categoryPillInactiveLight: {
-    backgroundColor: 'rgba(0,0,0,0.04)',
-    borderColor: 'rgba(0,0,0,0.06)',
-  },
-  categoryPillInactiveDark: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
   memberPill: {
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 20,
+    minHeight: 36,
   },
   memberPillActive: {
     backgroundColor: '#0284c7',
@@ -499,30 +415,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
-  },
-  splitTypeButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 12,
-  },
-  splitActiveLight: {
-    backgroundColor: '#ffffff',
-    shadowColor: '#64748b',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  splitActiveDark: {
-    backgroundColor: 'rgba(30, 41, 59, 0.95)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 2,
   },
 });

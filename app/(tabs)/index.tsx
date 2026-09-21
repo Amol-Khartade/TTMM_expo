@@ -1,15 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { RefreshControl, StyleSheet, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { RefreshControl, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { YStack, XStack, Text, Button, H2, Paragraph, Dialog, Input } from 'tamagui';
+import { YStack, XStack, Text, Button, H2, Paragraph } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import {
   Plus,
   Users,
   ArrowUpRight,
   ArrowDownLeft,
-  ChevronRight,
-  Sparkles,
   Wallet,
   Receipt,
   Layers,
@@ -20,27 +18,13 @@ import * as Haptics from 'expo-haptics';
 import { useAppStore } from '@/store/useAppStore';
 import { useUserGroupsQuery, useCreateGroupMutation } from '@/queries/useGroups';
 import { Group } from '@/types';
-import { AmbientBackground } from '@/components/ui/AmbientBackground';
-import { GlassCard } from '@/components/ui/GlassCard';
-
-// Color themes for groups
-const GROUP_PALETTES = [
-  { bg: '#e0f2fe', iconBg: '#0284c7', text: '#0369a1', glow: 'rgba(2, 132, 199, 0.25)' }, // Sky
-  { bg: '#ede9fe', iconBg: '#7c3aed', text: '#6d28d9', glow: 'rgba(124, 58, 237, 0.25)' }, // Purple
-  { bg: '#dcfce7', iconBg: '#16a34a', text: '#15803d', glow: 'rgba(22, 163, 74, 0.25)' },  // Emerald
-  { bg: '#fef3c7', iconBg: '#d97706', text: '#b45309', glow: 'rgba(217, 119, 6, 0.25)' },  // Amber
-  { bg: '#ffe4e6', iconBg: '#e11d48', text: '#be123c', glow: 'rgba(225, 29, 72, 0.25)' },  // Rose
-  { bg: '#ccfbf1', iconBg: '#0d9488', text: '#0f766e', glow: 'rgba(13, 148, 136, 0.25)' }, // Teal
-];
-
-const getGroupTheme = (name: string) => {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const index = Math.abs(hash) % GROUP_PALETTES.length;
-  return GROUP_PALETTES[index];
-};
+import {
+  AmbientBackground,
+  GlassCard,
+  GroupCard,
+  CreateGroupDialog,
+  FloatingActionButton,
+} from '@/components';
 
 export default function GroupsTabScreen() {
   const insets = useSafeAreaInsets();
@@ -50,96 +34,23 @@ export default function GroupsTabScreen() {
   const isDark = useAppStore((state) => state.isDark);
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
-  const [newGroupDesc, setNewGroupDesc] = useState('');
 
   const { data: groups = [], isLoading, refetch } = useUserGroupsQuery(currentUser?.id);
   const createGroupMutation = useCreateGroupMutation();
 
-  const handleCreateGroup = async () => {
-    if (!newGroupName.trim() || !currentUser) return;
+  const handleCreateGroup = async (name: string, description: string) => {
+    if (!currentUser) return;
     try {
       await createGroupMutation.mutateAsync({
-        name: newGroupName.trim(),
-        description: newGroupDesc.trim(),
+        name,
+        description,
         userId: currentUser.id,
       });
-      setNewGroupName('');
-      setNewGroupDesc('');
       setCreateModalOpen(false);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } catch (e) {
       console.error('Failed to create group:', e);
     }
-  };
-
-  const renderGroupItem = ({ item, index }: { item: Group; index: number }) => {
-    const theme = getGroupTheme(item.name);
-
-    return (
-      <GlassCard
-        key={item.id}
-        variant="card"
-        borderRadius={20}
-        p={14}
-        animate
-        delay={index * 55}
-        style={styles.groupCardMargin}
-        onPress={() => {
-          (router.push as any)({
-            pathname: '/group/[id]',
-            params: { id: item.id },
-          });
-        }}
-      >
-        <XStack justifyContent="space-between" alignItems="center">
-          <XStack gap="$3" alignItems="center" flex={1}>
-            <YStack
-              backgroundColor={theme.bg}
-              width={46}
-              height={46}
-              borderRadius={14}
-              alignItems="center"
-              justifyContent="center"
-              borderWidth={1}
-              borderColor={theme.glow}
-            >
-              <Users size={22} color={theme.iconBg} />
-            </YStack>
-            <YStack flex={1}>
-              <Text fontWeight="800" fontSize="$4" numberOfLines={1} color="$color">
-                {item.name}
-              </Text>
-              <XStack alignItems="center" gap="$1.5" mt="$0.5">
-                <Text fontSize={12} color="$gray10">
-                  {item.members.length} {item.members.length === 1 ? 'member' : 'members'}
-                </Text>
-                {item.description ? (
-                  <>
-                    <Text fontSize={10} color="$gray8">
-                      •
-                    </Text>
-                    <Text fontSize={12} color="$gray10" numberOfLines={1} flex={1}>
-                      {item.description}
-                    </Text>
-                  </>
-                ) : null}
-              </XStack>
-            </YStack>
-          </XStack>
-
-          <XStack alignItems="center" gap="$2">
-            <YStack
-              backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
-              p="$1.5"
-              borderRadius="$3"
-            >
-              <ChevronRight size={18} color="#94a3b8" />
-            </YStack>
-          </XStack>
-        </XStack>
-      </GlassCard>
-    );
   };
 
   return (
@@ -282,7 +193,7 @@ export default function GroupsTabScreen() {
           </GlassCard>
         </MotiView>
 
-        {/* Groups List */}
+        {/* Groups Feed */}
         <YStack flex={1}>
           <XStack justifyContent="space-between" alignItems="center" mb="$3" px="$1">
             <XStack alignItems="center" gap="$2">
@@ -298,7 +209,18 @@ export default function GroupsTabScreen() {
 
           <FlashList
             data={groups}
-            renderItem={renderGroupItem}
+            renderItem={({ item, index }: { item: Group; index: number }) => (
+              <GroupCard
+                group={item}
+                index={index}
+                onPress={() => {
+                  (router.push as any)({
+                    pathname: '/group/[id]',
+                    params: { id: item.id },
+                  });
+                }}
+              />
+            )}
             keyExtractor={(item) => item.id}
             contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}
             refreshControl={
@@ -352,107 +274,27 @@ export default function GroupsTabScreen() {
         </YStack>
 
         {/* Floating Add Expense Button */}
-        <MotiView
-          from={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', damping: 15, delay: 200 }}
-          style={[styles.fabContainer, { bottom: insets.bottom + 92 }]}
-        >
-          <Pressable
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-              router.push('/expense/add');
-            }}
-            style={({ pressed }) => [
-              styles.fabButton,
-              pressed && { transform: [{ scale: 0.92 }], opacity: 0.9 },
-            ]}
-          >
-            <Receipt size={22} color="white" />
-            <Text color="white" fontWeight="800" fontSize="$3">
-              Add Expense
-            </Text>
-          </Pressable>
-        </MotiView>
+        <FloatingActionButton
+          icon={Receipt}
+          label="Add Expense"
+          bottom={insets.bottom + 92}
+          onPress={() => router.push('/expense/add')}
+          accessibilityLabel="Add Expense"
+        />
 
-        {/* Create Group Modal */}
-        <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
-          <Dialog.Portal>
-            <Dialog.Overlay
-              key="overlay"
-              opacity={0.65}
-              backgroundColor="rgba(0,0,0,0.6)"
-            />
-            <Dialog.Content
-              key="content"
-              p="$4"
-              width="90%"
-              borderRadius={24}
-              backgroundColor={isDark ? '#1e293b' : '#ffffff'}
-              borderWidth={1}
-              borderColor={isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}
-              elevation={8}
-            >
-              <Dialog.Title fontWeight="800" fontSize="$5" color="$color">
-                Create New Group
-              </Dialog.Title>
-              <Dialog.Description size="$2" color="$gray10" mb="$3.5">
-                Organize your trip, flat, or outing with friends.
-              </Dialog.Description>
-
-              <Input
-                placeholder="Group Name (e.g. Goa Trip 2026)"
-                value={newGroupName}
-                onChangeText={setNewGroupName}
-                mb="$3"
-                borderRadius="$4"
-                borderWidth={1}
-                borderColor="$gray6"
-                backgroundColor={isDark ? '#0f172a' : '$gray2'}
-              />
-              <Input
-                placeholder="Description (Optional)"
-                value={newGroupDesc}
-                onChangeText={setNewGroupDesc}
-                mb="$4"
-                borderRadius="$4"
-                borderWidth={1}
-                borderColor="$gray6"
-                backgroundColor={isDark ? '#0f172a' : '$gray2'}
-              />
-
-              <XStack justifyContent="flex-end" gap="$2.5">
-                <Button
-                  chromeless
-                  borderRadius="$4"
-                  onPress={() => setCreateModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  backgroundColor="$blue10"
-                  color="white"
-                  borderRadius="$4"
-                  onPress={handleCreateGroup}
-                  disabled={!newGroupName.trim() || createGroupMutation.isPending}
-                >
-                  <Text color="white" fontWeight="700">
-                    {createGroupMutation.isPending ? 'Creating...' : 'Create'}
-                  </Text>
-                </Button>
-              </XStack>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog>
+        {/* Create Group Modal Dialog */}
+        <CreateGroupDialog
+          open={createModalOpen}
+          onOpenChange={setCreateModalOpen}
+          onSubmit={handleCreateGroup}
+          isSubmitting={createGroupMutation.isPending}
+        />
       </YStack>
     </AmbientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  groupCardMargin: {
-    marginBottom: 12,
-  },
   heroCardMargin: {
     marginBottom: 16,
   },
@@ -460,24 +302,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  fabContainer: {
-    position: 'absolute',
-    right: 20,
-    zIndex: 99,
-  },
-  fabButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#0284c7',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    shadowColor: '#0284c7',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
   },
 });

@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Platform,
   ViewStyle,
+  StyleProp,
   Pressable,
   View,
 } from 'react-native';
@@ -13,8 +14,8 @@ import { useAppStore } from '@/store/useAppStore';
 
 export interface GlassCardProps {
   children: React.ReactNode;
-  style?: ViewStyle;
-  contentStyle?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
   borderRadius?: number;
   intensity?: number;
   tint?: 'light' | 'dark' | 'default';
@@ -99,7 +100,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     }
   };
 
-  const containerStyle: ViewStyle = {
+  const baseContainerStyle: ViewStyle = {
     borderRadius,
     overflow: 'hidden',
     borderWidth,
@@ -123,7 +124,6 @@ export const GlassCard: React.FC<GlassCardProps> = ({
           : '0 8px 24px 0 rgba(148, 163, 184, 0.12)',
       } as any,
     }),
-    ...style,
   };
 
   const paddingStyle: ViewStyle = {
@@ -167,7 +167,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
           <Pressable
             onPress={handlePress}
             style={({ pressed }) => [
-              containerStyle,
+              baseContainerStyle,
               pressed && { transform: [{ scale: 0.985 }], opacity: 0.92 },
             ]}
           >
@@ -182,7 +182,8 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       <Pressable
         onPress={handlePress}
         style={({ pressed }) => [
-          containerStyle,
+          baseContainerStyle,
+          style,
           pressed && { transform: [{ scale: 0.985 }], opacity: 0.92 },
         ]}
       >
@@ -198,7 +199,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         from={{ opacity: 0, translateY: 10, scale: 0.98 }}
         animate={{ opacity: 1, translateY: 0, scale: 1 }}
         transition={{ type: 'spring', damping: 18, stiffness: 220, delay }}
-        style={containerStyle}
+        style={[baseContainerStyle, style]}
       >
         {innerContent}
         {cardBody}
@@ -207,7 +208,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   }
 
   return (
-    <View style={containerStyle}>
+    <View style={[baseContainerStyle, style]}>
       {innerContent}
       {cardBody}
     </View>
