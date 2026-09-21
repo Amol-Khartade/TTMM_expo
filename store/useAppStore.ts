@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { createMMKV, MMKV } from 'react-native-mmkv';
 import { User } from '@/types';
+import { ENV } from '@/constants';
 
 // Synchronous MMKV Storage with in-memory fallback for Web/test runners
 let mmkvInstance: MMKV | null = null;
@@ -58,7 +59,7 @@ export const useAppStore = create<AppUIState>()(
     (set) => ({
       isDark: false,
       activeGroupId: null,
-      selectedCurrency: 'INR',
+      selectedCurrency: ENV.DEFAULTS.CURRENCY,
       biometricLockEnabled: false,
       currentUser: null,
 

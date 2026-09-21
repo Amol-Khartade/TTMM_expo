@@ -21,6 +21,7 @@ import { createExpenseSchema, CreateExpenseInput } from '@/schemas/expenseSchema
 import { useAddExpenseMutation } from '@/queries/useExpenses';
 import { useGroupDetailsQuery, useUserGroupsQuery } from '@/queries/useGroups';
 import { useAppStore } from '@/store/useAppStore';
+import { ENV } from '@/constants';
 import {
   AmbientBackground,
   GlassCard,
@@ -57,7 +58,7 @@ export default function AddExpenseModal() {
     defaultValues: {
       title: '',
       amount: 0,
-      currency: selectedCurrency,
+      currency: selectedCurrency || ENV.DEFAULTS.CURRENCY,
       groupId: selectedGroupId || userGroups[0]?.id || '',
       paidBy: currentUser?.id || '',
       category: 'food',

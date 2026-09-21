@@ -1,16 +1,16 @@
 export default {
   expo: {
-    name: 'TTMM',
+    name: process.env.EXPO_PUBLIC_APP_NAME || 'TTMM',
     slug: 'ttmm',
     owner: 'amolkhartade97',
-    version: '1.0.0',
+    version: process.env.EXPO_PUBLIC_APP_VERSION || '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
-    scheme: 'ttmm',
+    scheme: process.env.EXPO_PUBLIC_APP_SCHEME || 'ttmm',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     updates: {
-      url: 'https://u.expo.dev/bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0',
+      url: `https://u.expo.dev/${process.env.EXPO_PUBLIC_EAS_PROJECT_ID || process.env.EAS_PROJECT_ID || 'bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0'}`,
     },
     ios: {
       supportsTablet: true,
@@ -20,7 +20,8 @@ export default {
         CFBundleURLTypes: [
           {
             CFBundleURLSchemes: [
-              'com.googleusercontent.apps.490411406261-jcv6h9c36rcujdbs89m7firg1r6s7se3',
+              process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME ||
+                'com.googleusercontent.apps.490411406261-jcv6h9c36rcujdbs89m7firg1r6s7se3',
             ],
           },
         ],
@@ -69,7 +70,10 @@ export default {
     ],
     extra: {
       eas: {
-        projectId: 'bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0',
+        projectId:
+          process.env.EXPO_PUBLIC_EAS_PROJECT_ID ||
+          process.env.EAS_PROJECT_ID ||
+          'bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0',
       },
     },
   },

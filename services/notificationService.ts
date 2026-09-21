@@ -14,9 +14,13 @@ import {
 import { Notification } from '@/types';
 import { sanitizeForFirestore } from '@/utils/firestoreUtils';
 import { sortByDateDesc } from '@/utils/formatters';
+import { ENV } from '@/constants';
 
 class NotificationService {
   async requestPermission(): Promise<boolean> {
+    if (!ENV.FEATURES.PUSH_NOTIFICATIONS) {
+      return false;
+    }
     try {
       const authStatus = await messaging().requestPermission();
       const enabled =
@@ -31,6 +35,9 @@ class NotificationService {
   }
 
   async getToken(): Promise<string | null> {
+    if (!ENV.FEATURES.PUSH_NOTIFICATIONS) {
+      return null;
+    }
     try {
       const token = await messaging().getToken();
       return token;
@@ -135,6 +142,9 @@ class NotificationService {
   }
 
   setupMessageListener(): () => void {
+    if (!ENV.FEATURES.PUSH_NOTIFICATIONS) {
+      return () => {};
+    }
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('Received foreground message:', remoteMessage);
     });

@@ -30,6 +30,7 @@ import { useGroupSettlementsQuery } from '@/queries/useSettlements';
 import { calculateNetBalances, simplifyDebts } from '@/services/debtSimplifier';
 import { useAppStore } from '@/store/useAppStore';
 import { Expense, GroupMember } from '@/types';
+import { ENV } from '@/constants';
 import {
   AmbientBackground,
   GlassCard,
@@ -52,7 +53,7 @@ export default function GroupDetailScreen() {
   const isDark = useAppStore((state) => state.isDark);
 
   const [activeTab, setActiveTab] = useState<'expenses' | 'balances'>('expenses');
-  const [useSimplifiedDebts, setUseSimplifiedDebts] = useState(true);
+  const [useSimplifiedDebts, setUseSimplifiedDebts] = useState(ENV.FEATURES.SIMPLIFIED_DEBTS);
 
   // Add Member Modal State
   const [addMemberOpen, setAddMemberOpen] = useState(false);

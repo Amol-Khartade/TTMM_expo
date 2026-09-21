@@ -19,6 +19,7 @@ import { authService } from '@/services/authService';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { ENV } from '@/constants';
 
 export default function ProfileTabScreen() {
   const insets = useSafeAreaInsets();
@@ -86,7 +87,7 @@ export default function ProfileTabScreen() {
                 <YStack flex={1}>
                   <XStack alignItems="center" gap="$2">
                     <Text fontWeight="800" fontSize="$5" color="$color" numberOfLines={1}>
-                      {currentUser?.displayName || 'TTMM Member'}
+                      {currentUser?.displayName || `${ENV.APP_NAME} Member`}
                     </Text>
                     <CheckCircle2 size={16} color="#16a34a" />
                   </XStack>
@@ -294,6 +295,10 @@ export default function ProfileTabScreen() {
               </Text>
             </Pressable>
           </MotiView>
+
+          <Text textAlign="center" fontSize="$1" color="$gray8" mt="$1">
+            {ENV.APP_NAME} v{ENV.APP_VERSION} • {ENV.APP_ENV}
+          </Text>
         </YStack>
       </YStack>
     </AmbientBackground>

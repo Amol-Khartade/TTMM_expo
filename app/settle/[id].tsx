@@ -21,6 +21,7 @@ import { GroupMember } from '@/types';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { FilterPill } from '@/components/ui/FilterPill';
+import { ENV } from '@/constants';
 
 export default function SettleUpModal() {
   const router = useRouter();
@@ -54,10 +55,10 @@ export default function SettleUpModal() {
     if (payeeUpiId) {
       await launchUPIPayment({
         payeeUpiId,
-        payeeName: toMember?.displayName || 'TTMM User',
+        payeeName: toMember?.displayName || `${ENV.APP_NAME} User`,
         amount: numAmount,
         currency: selectedCurrency,
-        transactionNote: `Settlement in ${group?.name || 'TTMM'}`,
+        transactionNote: `Settlement in ${group?.name || ENV.APP_NAME}`,
       });
     }
 

@@ -24,6 +24,7 @@ import {
   AuthErrorBanner,
   AuthSubmitButton,
 } from '@/components';
+import { ENV } from '@/constants';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -168,7 +169,7 @@ export default function LoginScreen() {
                 letterSpacing={-0.8}
                 textAlign="center"
               >
-                TTMM
+                {ENV.APP_NAME}
               </Text>
 
               <XStack

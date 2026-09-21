@@ -1,4 +1,5 @@
 import { Linking } from 'react-native';
+import { ENV } from '@/constants';
 
 export interface UPIPaymentParams {
   payeeUpiId: string;
@@ -15,8 +16,8 @@ export function buildUPIUri({
   payeeUpiId,
   payeeName,
   amount,
-  currency = 'INR',
-  transactionNote = 'TTMM Settlement',
+  currency = ENV.DEFAULTS.CURRENCY,
+  transactionNote = ENV.DEFAULTS.TRANSACTION_NOTE,
 }: UPIPaymentParams): string {
   const encodedName = encodeURIComponent(payeeName);
   const encodedNote = encodeURIComponent(transactionNote);

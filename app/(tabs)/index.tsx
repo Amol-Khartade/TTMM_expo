@@ -27,6 +27,7 @@ import {
   EmptyStateCard,
 } from '@/components';
 import { formatCurrency } from '@/utils/formatters';
+import { ENV } from '@/constants';
 
 export default function GroupsTabScreen() {
   const insets = useSafeAreaInsets();
@@ -63,7 +64,7 @@ export default function GroupsTabScreen() {
           <YStack>
             <XStack alignItems="center" gap="$2">
               <H2 fontWeight="900" color="$color" letterSpacing={-0.5} fontSize="$7">
-                TTMM
+                {ENV.APP_NAME}
               </H2>
               <YStack
                 backgroundColor={isDark ? 'rgba(56, 189, 248, 0.18)' : 'rgba(2, 132, 199, 0.10)'}
