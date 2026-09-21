@@ -32,13 +32,16 @@ export default function LoginScreen() {
       password: '',
     },
   });
+  const [authError, setAuthError] = React.useState<string | null>(null);
 
   const onSubmit = async (data: LoginInput) => {
     try {
+      setAuthError(null);
       await authService.signIn(data.email, data.password);
       router.replace('/(tabs)');
     } catch (err: any) {
       console.error('Login error:', err);
+      setAuthError(err.message || 'Failed to sign in');
     }
   };
 
@@ -54,6 +57,21 @@ export default function LoginScreen() {
       </YStack>
 
       <Card borderWidth={1} borderColor="#e2e8f0" borderRadius="$5" p="$4" mb="$4">
+        {authError && (
+          <XStack
+            backgroundColor="#fee2e2"
+            p="$3"
+            borderRadius="$3"
+            alignItems="center"
+            gap="$2"
+            mb="$3"
+          >
+            <AlertCircle size={18} color="#dc2626" />
+            <Paragraph color="#dc2626" size="$2" flex={1}>
+              {authError}
+            </Paragraph>
+          </XStack>
+        )}
         <YStack gap="$3">
           <YStack>
             <Text fontWeight="600" mb="$1">

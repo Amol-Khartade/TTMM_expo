@@ -35,13 +35,16 @@ export default function SignUpScreen() {
       upiId: '',
     },
   });
+  const [authError, setAuthError] = React.useState<string | null>(null);
 
   const onSubmit = async (data: SignUpInput) => {
     try {
+      setAuthError(null);
       await authService.signUp(data.email, data.password, data.displayName);
       router.replace('/(tabs)');
     } catch (err: any) {
       console.error('Sign up error:', err);
+      setAuthError(err.message || 'Failed to create account');
     }
   };
 
@@ -57,6 +60,21 @@ export default function SignUpScreen() {
       </YStack>
 
       <Card borderWidth={1} borderColor="#e2e8f0" borderRadius="$5" p="$4" mb="$4">
+        {authError && (
+          <XStack
+            backgroundColor="#fee2e2"
+            p="$3"
+            borderRadius="$3"
+            alignItems="center"
+            gap="$2"
+            mb="$3"
+          >
+            <AlertCircle size={18} color="#dc2626" />
+            <Paragraph color="#dc2626" size="$2" flex={1}>
+              {authError}
+            </Paragraph>
+          </XStack>
+        )}
         <YStack gap="$2.5">
           <YStack>
             <Text fontWeight="600" mb="$1">
