@@ -1,27 +1,43 @@
 export default {
   expo: {
-    name: 'TTMM',
+    name: process.env.EXPO_PUBLIC_APP_NAME || 'TTMM',
     slug: 'ttmm',
-    owner: 'amolkhartade',
-    version: '1.0.0',
+    owner: 'amolkhartade97',
+    version: process.env.EXPO_PUBLIC_APP_VERSION || '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
-    scheme: 'ttmm',
+    scheme: process.env.EXPO_PUBLIC_APP_SCHEME || 'ttmm',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
+    updates: {
+      url: `https://u.expo.dev/${process.env.EXPO_PUBLIC_EAS_PROJECT_ID || process.env.EAS_PROJECT_ID || 'bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0'}`,
+    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.ttmm.app',
       googleServicesFile: './GoogleService-Info.plist',
+      infoPlist: {
+        CFBundleURLTypes: [
+          {
+            CFBundleURLSchemes: [
+              process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME ||
+                'com.googleusercontent.apps.490411406261-jcv6h9c36rcujdbs89m7firg1r6s7se3',
+            ],
+          },
+        ],
+      },
+      runtimeVersion: {
+        policy: 'appVersion',
+      },
     },
     android: {
       adaptiveIcon: {
         foregroundImage: './assets/images/adaptive-icon.png',
         backgroundColor: '#ffffff',
       },
-      edgeToEdgeEnabled: true,
       package: 'com.ttmm.app',
       googleServicesFile: './google-services.json',
+      runtimeVersion: '1.0.0',
     },
     web: {
       bundler: 'metro',
@@ -30,6 +46,8 @@ export default {
     },
     plugins: [
       'expo-router',
+      'expo-font',
+      'expo-status-bar',
       [
         'expo-splash-screen',
         {
@@ -39,17 +57,7 @@ export default {
           backgroundColor: '#ffffff',
         },
       ],
-      [
-        '@react-native-firebase/app',
-        {
-          android: {
-            googleServicesFile: './google-services.json',
-          },
-          ios: {
-            googleServicesFile: './GoogleService-Info.plist',
-          },
-        },
-      ],
+      '@react-native-firebase/app',
       '@react-native-firebase/auth',
       [
         '@react-native-firebase/messaging',
@@ -59,13 +67,20 @@ export default {
           },
         },
       ],
+      [
+        'expo-image-picker',
+        {
+          photosPermission: 'Allow $(PRODUCT_NAME) to access your photos to scan receipts.',
+          cameraPermission: 'Allow $(PRODUCT_NAME) to access your camera to photograph receipts.',
+        },
+      ],
     ],
-    experiments: {
-      typedRoutes: true,
-    },
     extra: {
       eas: {
-        projectId: '73363ff8-6333-4f59-a6cc-85d452430185',
+        projectId:
+          process.env.EXPO_PUBLIC_EAS_PROJECT_ID ||
+          process.env.EAS_PROJECT_ID ||
+          'bbd3d1f1-0898-40d4-9d0a-a9a8f78a07e0',
       },
     },
   },

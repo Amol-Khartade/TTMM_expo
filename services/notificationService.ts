@@ -1,15 +1,32 @@
 import messaging from '@react-native-firebase/messaging';
-import firestore from '@react-native-firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  updateDoc,
+  query,
+  where,
+  getDocs,
+  writeBatch,
+} from '@react-native-firebase/firestore';
 import { Notification } from '@/types';
+import { sanitizeForFirestore } from '@/utils/firestoreUtils';
+import { sortByDateDesc } from '@/utils/formatters';
+import { ENV } from '@/constants';
 
 class NotificationService {
   async requestPermission(): Promise<boolean> {
+    if (!ENV.FEATURES.PUSH_NOTIFICATIONS) {
+      return false;
+    }
     try {
       const authStatus = await messaging().requestPermission();
       const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-      
+
       return enabled;
     } catch (error) {
       console.error('Error requesting notification permission:', error);
@@ -18,6 +35,9 @@ class NotificationService {
   }
 
   async getToken(): Promise<string | null> {
+    if (!ENV.FEATURES.PUSH_NOTIFICATIONS) {
+      return null;
+    }
     try {
       const token = await messaging().getToken();
       return token;
@@ -29,13 +49,12 @@ class NotificationService {
 
   async updateUserToken(userId: string, token: string): Promise<void> {
     try {
-      await firestore()
-        .collection('users')
-        .doc(userId)
-        .update({
-          fcmToken: token,
-          updatedAt: new Date(),
-        });
+      const db = getFirestore();
+      const userDocRef = doc(db, 'users', userId);
+      await updateDoc(userDocRef, {
+        fcmToken: token,
+        updatedAt: new Date(),
+      });
     } catch (error) {
       console.error('Error updating user token:', error);
     }
@@ -48,6 +67,7 @@ class NotificationService {
     data?: any;
   }): Promise<void> {
     try {
+      const db = getFirestore();
       const notification: Omit<Notification, 'id'> = {
         userId,
         type: notificationData.type,
@@ -58,27 +78,11 @@ class NotificationService {
         createdAt: new Date(),
       };
 
-      await firestore().collection('notifications').add(notification);
+      const cleanNotification = sanitizeForFirestore(notification);
+      const notificationsCol = collection(db, 'notifications');
+      await addDoc(notificationsCol, cleanNotification);
 
-      const userDoc = await firestore().collection('users').doc(userId).get();
-      const userData = userDoc.data();
-      
-      if (userData?.fcmToken) {
-        const message = {
-          token: userData.fcmToken,
-          notification: {
-            title: notificationData.title,
-            body: notificationData.message,
-          },
-          data: notificationData.data ? JSON.stringify(notificationData.data) : '{}',
-        };
-
-        try {
-          await messaging().send(message);
-        } catch (error) {
-          console.error('Error sending push notification:', error);
-        }
-      }
+      console.log(`Notification created for user ${userId}: ${notificationData.title}`);
     } catch (error) {
       console.error('Error sending notification:', error);
     }
@@ -86,17 +90,18 @@ class NotificationService {
 
   async getUserNotifications(userId: string): Promise<Notification[]> {
     try {
-      const snapshot = await firestore()
-        .collection('notifications')
-        .where('userId', '==', userId)
-        .orderBy('createdAt', 'desc')
-        .limit(50)
-        .get();
+      const db = getFirestore();
+      const notificationsCol = collection(db, 'notifications');
+      const q = query(notificationsCol, where('userId', '==', userId));
+      const snapshot = await getDocs(q);
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
+      const notifications = snapshot.docs.map((d: any) => ({
+        id: d.id,
+        ...d.data(),
       })) as Notification[];
+
+      const sorted = sortByDateDesc(notifications, (n) => n.createdAt);
+      return sorted.slice(0, 50);
     } catch (error: any) {
       throw new Error(error.message);
     }
@@ -104,11 +109,10 @@ class NotificationService {
 
   async markAsRead(notificationId: string): Promise<string> {
     try {
-      await firestore()
-        .collection('notifications')
-        .doc(notificationId)
-        .update({ read: true });
-      
+      const db = getFirestore();
+      const notificationDocRef = doc(db, 'notifications', notificationId);
+      await updateDoc(notificationDocRef, { read: true });
+
       return notificationId;
     } catch (error: any) {
       throw new Error(error.message);
@@ -117,15 +121,18 @@ class NotificationService {
 
   async markAllAsRead(userId: string): Promise<void> {
     try {
-      const batch = firestore().batch();
-      const snapshot = await firestore()
-        .collection('notifications')
-        .where('userId', '==', userId)
-        .where('read', '==', false)
-        .get();
+      const db = getFirestore();
+      const batch = writeBatch(db);
+      const notificationsCol = collection(db, 'notifications');
+      const q = query(
+        notificationsCol,
+        where('userId', '==', userId),
+        where('read', '==', false),
+      );
+      const snapshot = await getDocs(q);
 
-      snapshot.docs.forEach(doc => {
-        batch.update(doc.ref, { read: true });
+      snapshot.docs.forEach((d: any) => {
+        batch.update(d.ref, { read: true });
       });
 
       await batch.commit();
@@ -135,6 +142,9 @@ class NotificationService {
   }
 
   setupMessageListener(): () => void {
+    if (!ENV.FEATURES.PUSH_NOTIFICATIONS) {
+      return () => {};
+    }
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('Received foreground message:', remoteMessage);
     });

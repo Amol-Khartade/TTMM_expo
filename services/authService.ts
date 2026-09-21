@@ -1,19 +1,33 @@
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut as fbSignOut,
+  updateProfile as fbUpdateProfile,
+  onAuthStateChanged as fbOnAuthStateChanged,
+} from '@react-native-firebase/auth';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from '@react-native-firebase/firestore';
 import { User } from '@/types';
+import { sanitizeForFirestore } from '@/utils/firestoreUtils';
 
 class AuthService {
   async signInWithEmail(email: string, password: string): Promise<User> {
     try {
-      const userCredential = await auth().signInWithEmailAndPassword(email, password);
+      const auth = getAuth();
+      const db = getFirestore();
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
-      
-      const userDoc = await firestore()
-        .collection('users')
-        .doc(firebaseUser.uid)
-        .get();
-      
-      if (userDoc.exists) {
+
+      const userDocRef = doc(db, 'users', firebaseUser.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
         return userDoc.data() as User;
       } else {
         throw new Error('User data not found');
@@ -23,28 +37,32 @@ class AuthService {
     }
   }
 
+  async signIn(email: string, password: string): Promise<User> {
+    return this.signInWithEmail(email, password);
+  }
+
   async signUpWithEmail(email: string, password: string, displayName: string): Promise<User> {
     try {
-      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      const auth = getAuth();
+      const db = getFirestore();
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
-      
-      await firebaseUser.updateProfile({ displayName });
-      
+
+      await fbUpdateProfile(firebaseUser, { displayName });
+
       const userData: User = {
         id: firebaseUser.uid,
-        email: firebaseUser.email!,
+        email: firebaseUser.email || email,
         displayName,
-        photoURL: firebaseUser.photoURL || undefined,
         isPremium: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+        ...(firebaseUser.photoURL ? { photoURL: firebaseUser.photoURL } : {}),
       };
-      
-      await firestore()
-        .collection('users')
-        .doc(firebaseUser.uid)
-        .set(userData);
-      
+
+      const userDocRef = doc(db, 'users', firebaseUser.uid);
+      await setDoc(userDocRef, userData);
+
       return userData;
     } catch (error: any) {
       throw new Error(error.message);
@@ -53,56 +71,65 @@ class AuthService {
 
   async signOut(): Promise<void> {
     try {
-      await auth().signOut();
+      const auth = getAuth();
+      if (auth.currentUser) {
+        await fbSignOut(auth);
+      }
     } catch (error: any) {
-      throw new Error(error.message);
+      if (
+        error?.code === 'auth/no-current-user' ||
+        error?.message?.includes('no-current-user')
+      ) {
+        return;
+      }
+      throw new Error(error.message || 'Failed to sign out');
     }
   }
 
   async updateProfile(userData: Partial<User>): Promise<User> {
     try {
-      const currentUser = auth().currentUser;
+      const auth = getAuth();
+      const db = getFirestore();
+      const currentUser = auth.currentUser;
       if (!currentUser) {
         throw new Error('No authenticated user');
       }
 
-      const updatedData = {
+      const updatedData = sanitizeForFirestore({
         ...userData,
         updatedAt: new Date(),
-      };
+      });
 
-      await firestore()
-        .collection('users')
-        .doc(currentUser.uid)
-        .update(updatedData);
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userDocRef, updatedData);
 
-      const userDoc = await firestore()
-        .collection('users')
-        .doc(currentUser.uid)
-        .get();
-
+      const userDoc = await getDoc(userDocRef);
       return userDoc.data() as User;
     } catch (error: any) {
       throw new Error(error.message);
     }
   }
 
+  async signUp(email: string, password: string, displayName: string): Promise<User> {
+    return this.signUpWithEmail(email, password, displayName);
+  }
+
   async getCurrentUser(): Promise<User | null> {
     try {
-      const currentUser = auth().currentUser;
+      const auth = getAuth();
+      const db = getFirestore();
+      const currentUser = auth.currentUser;
       if (!currentUser) {
         return null;
       }
 
-      const userDoc = await firestore()
-        .collection('users')
-        .doc(currentUser.uid)
-        .get();
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
 
-      if (userDoc.exists) {
+      if (userDoc.exists()) {
         return userDoc.data() as User;
       }
-      
+
       return null;
     } catch (error) {
       console.error('Error getting current user:', error);
@@ -111,15 +138,15 @@ class AuthService {
   }
 
   onAuthStateChanged(callback: (user: User | null) => void) {
-    return auth().onAuthStateChanged(async (firebaseUser) => {
+    const auth = getAuth();
+    const db = getFirestore();
+    return fbOnAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          const userDoc = await firestore()
-            .collection('users')
-            .doc(firebaseUser.uid)
-            .get();
-          
-          if (userDoc.exists) {
+          const userDocRef = doc(db, 'users', firebaseUser.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
             callback(userDoc.data() as User);
           } else {
             callback(null);

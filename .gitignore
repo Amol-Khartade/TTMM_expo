@@ -1,39 +1,142 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# dependencies
+# ==============================================================================
+# 1. Dependencies & Package Managers
+# ==============================================================================
 node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnpm-store/
 
-# Expo
+# ==============================================================================
+# 2. Environment Variables & Secrets
+# ==============================================================================
+.env
+.env.*
+.env*.local
+!.env.example
+
+# ==============================================================================
+# 3. Expo & EAS
+# ==============================================================================
 .expo/
+.expo-shared/
+.eas/
 dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# ==============================================================================
+# 4. Native Prebuilds & Build Artifacts (Android / iOS)
+# ==============================================================================
+android/
+/android
+ios/
+/ios
 .kotlin/
 *.orig.*
+
+# Android build outputs & caches
+android/.gradle/
+android/app/build/
+android/build/
+
+# iOS build outputs, CocoaPods & Xcode user state
+ios/Pods/
+ios/build/
+ios/*.xcworkspace/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+
+# ==============================================================================
+# 5. Signing Keys, Certificates & Keystores
+# ==============================================================================
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.pem
+*.cer
+*.der
 
-# Metro
+# ==============================================================================
+# 6. Metro & Bundler Caches
+# ==============================================================================
 .metro-health-check*
+.tamagui/
 
-# debug
+# ==============================================================================
+# 7. Logs & Debugging
+# ==============================================================================
+*.log
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+pnpm-debug.*
+lerna-debug.*
 
+# ==============================================================================
+# 8. Testing & Code Coverage
+# ==============================================================================
+coverage/
+*.lcov
+.nyc_output/
+
+# ==============================================================================
+# 9. IDE & Editor Files
+# ==============================================================================
+.idea/
+.vscode/*
+!.vscode/settings.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swo
+*.swp
+*~
+.claude/settings.local.json
+
+# ==============================================================================
+# 10. Operating System Files
+# ==============================================================================
 # macOS
 .DS_Store
-*.pem
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 
-# local env files
-.env*.local
+# Windows
+[Tt]humbs.db
+[Tt]humbs.db:encryptable
+[Ee]hthumbs.db
+[Ee]hthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
 
-# typescript
+# Linux
+.directory
+.fuse_hidden*
+
+# ==============================================================================
+# 11. TypeScript & Misc
+# ==============================================================================
 *.tsbuildinfo
-
-app-example
+tmp/
+temp/
+*.tmp
+*.bak
+app-example/
